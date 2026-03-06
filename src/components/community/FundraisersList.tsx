@@ -16,7 +16,7 @@ function FundraiserCard({ fundraiser }: { fundraiser: Fundraiser }) {
   return (
     <a
       href={`/fundraisers/${fundraiser.slug}`}
-      className="group block overflow-hidden rounded-xl border border-gfm-border bg-white transition hover:shadow-md"
+      className="group block overflow-hidden rounded-xl border border-gfm-border bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
     >
       {/* Cover image */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">

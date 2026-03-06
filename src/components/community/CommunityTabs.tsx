@@ -28,7 +28,7 @@ export function CommunityTabs({ activeTab, onTabChange }: CommunityTabsProps) {
             >
               {tab.label}
               {activeTab === tab.id && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-gfm-dark" />
+                <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-full bg-gfm-green" />
               )}
             </button>
           ))}
