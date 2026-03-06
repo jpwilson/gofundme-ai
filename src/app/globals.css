@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gfm-green: #02a95c;
+  --gfm-dark-green: #017a3e;
+  --gfm-light-green: #d0f2c8;
+  --gfm-dark: #1a1a1a;
+  --gfm-secondary: #6b6b6b;
+  --gfm-border: #e0e0e0;
+  --gfm-bg: #f8f8f8;
+  --gfm-white: #ffffff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gfm-green: var(--gfm-green);
+  --color-gfm-dark-green: var(--gfm-dark-green);
+  --color-gfm-light-green: var(--gfm-light-green);
+  --color-gfm-dark: var(--gfm-dark);
+  --color-gfm-secondary: var(--gfm-secondary);
+  --color-gfm-border: var(--gfm-border);
+  --color-gfm-bg: var(--gfm-bg);
+  --color-gfm-white: var(--gfm-white);
+  --font-sans: var(--font-inter);
+  --radius-card: 12px;
+  --radius-pill: 9999px;
+  --radius-btn: 8px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--gfm-white);
+  color: var(--gfm-dark);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
