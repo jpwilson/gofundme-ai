@@ -83,9 +83,11 @@ export function DonationSidebar({
 
         {/* Action buttons */}
         <div className="space-y-2.5">
-          <Button variant="primary" size="lg" fullWidth>
-            Donate now
-          </Button>
+          <Link href={`/f/${fundraiser.slug}/donate`}>
+            <Button variant="primary" size="lg" fullWidth>
+              Donate now
+            </Button>
+          </Link>
           <Button variant="secondary" size="lg" fullWidth>
             Share
           </Button>

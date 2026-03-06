@@ -2,7 +2,6 @@
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 import type { User } from "@/lib/types";
 
 interface ProfileHeaderProps {

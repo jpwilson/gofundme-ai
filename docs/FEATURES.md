@@ -188,3 +188,57 @@ Features that go beyond current GoFundMe, designed to increase social sharing an
 | Rich Media Updates | Medium | Low | P2 |
 | Donor Network Effects | High | High | P3 |
 | Recurring Giving | High | Medium | P1 |
+| Metrics Experiment Page | Medium | Low | P1 |
+| Giving Challenges (enhanced) | Medium | Medium | P2 |
+
+---
+
+## Next Step Ideas (Brainstorming)
+
+### Metrics Experiment Page
+
+A dedicated `/metrics-lab` page to prototype and test different data visualizations before promoting the best ones to the main pages (fundraiser, profile, community). Ideas to experiment with:
+
+**Donation Timeline Visualizations:**
+- Interactive timeline showing when each donation was made — reveals momentum patterns (e.g., spikes after social shares)
+- Donation velocity chart: donations/hour over the campaign's lifetime
+- "Heatmap" of donation activity by day of week and time of day
+
+**Donor Impact Dashboard (for user profile):**
+- Timeline of all contributions across all projects, grouped by category
+- Lifetime impact stats with tangible equivalents:
+  - "You've helped 5 shelters, affecting 500 lives"
+  - "Your donations helped rescue 12 dogs"
+  - "3 families housed through your contributions"
+  - Category-specific impact metrics (animals rescued, students funded, meals provided, etc.)
+- Category breakdown pie/donut chart of giving history
+- Geographic map of where their donations went
+- Year-over-year giving growth chart
+- "Giving personality" profile based on patterns (e.g., "Emergency Responder", "Animal Champion", "Education Advocate")
+
+**Campaign Health Metrics:**
+- Goal progress over time (line chart)
+- Average donation size trend
+- Share-to-donation conversion funnel
+- Donor retention (repeat donors vs. first-time)
+
+**Community Aggregate Stats:**
+- Total lives impacted across all fundraisers
+- Combined giving velocity
+- Top cause categories trending in the community
+
+> **Implementation**: Build as a single experiment page (`/metrics-lab`) with multiple visualization sections. After reviewing which metrics look good and tell compelling stories, promote the best ones into the fundraiser detail page, user profile, and community page.
+
+### Giving Challenges (Enhanced)
+
+**Note**: GoFundMe already has "CrowdRise Challenges" — charity competitions where supporters compete to win prizes from sponsors. See [GoFundMe Charity Challenges](https://charity.gofundme.com/charity-challenges) and [Challenge Tips](https://support.gofundme.com/hc/en-us/articles/41959720331291-Tips-and-best-practices-for-GoFundMe-Challenge-participants).
+
+**What we could add beyond their existing feature:**
+- **Friend vs. friend challenges**: Challenge a friend to a giving duel (e.g., "Who can raise more for animal shelters this month?")
+- **Race-for-charity integration**: Connect physical challenges (5K runs, marathons, cycling) to fundraising goals with live progress tracking
+- **Team challenges**: Form a team, set a collective goal, track individual contributions on a shared leaderboard
+- **Streak challenges**: "Donate every day for 30 days" with achievement badges
+- **Community challenges**: A community sets a collective giving goal (e.g., "Watch Duty community: raise $100K this month") with a shared progress bar
+- **Challenge templates**: Pre-built challenge types (birthday fundraiser challenge, holiday giving challenge, fitness challenge) that are easy to launch
+
+> **Key differentiator**: GoFundMe's existing challenges are nonprofit/org-focused with sponsor prizes. Our enhancement focuses on peer-to-peer social challenges between friends, making giving fun and competitive at the individual level.
