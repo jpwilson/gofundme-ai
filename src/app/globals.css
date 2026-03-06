@@ -9,6 +9,8 @@
   --gfm-border: #e0e0e0;
   --gfm-bg: #f8f8f8;
   --gfm-white: #ffffff;
+  --gfm-purple: #6366f1;
+  --gfm-pink: #ec4899;
 }
 
 @theme inline {
@@ -20,6 +22,8 @@
   --color-gfm-border: var(--gfm-border);
   --color-gfm-bg: var(--gfm-bg);
   --color-gfm-white: var(--gfm-white);
+  --color-gfm-purple: var(--gfm-purple);
+  --color-gfm-pink: var(--gfm-pink);
   --font-sans: var(--font-inter);
   --radius-card: 12px;
   --radius-pill: 9999px;
@@ -30,4 +34,30 @@ body {
   background: var(--gfm-white);
   color: var(--gfm-dark);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for discover people / horizontal scrolls */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* GoFundMe heart logo animation */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.logo-heart:hover .heart-icon {
+  animation: heartbeat 0.6s ease-in-out;
 }

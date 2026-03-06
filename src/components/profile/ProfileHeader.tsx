@@ -13,8 +13,8 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
   return (
     <div className="relative">
-      {/* Cover image area */}
-      <div className="relative h-[200px] w-full overflow-hidden rounded-b-2xl bg-[#d0f2c8]">
+      {/* Cover image area with organic green SVG shape */}
+      <div className="relative h-[220px] w-full overflow-hidden rounded-b-3xl bg-[#d0f2c8]">
         {user.coverImageUrl ? (
           <img
             src={user.coverImageUrl}
@@ -24,29 +24,56 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
         ) : (
           <svg
             className="absolute inset-0 h-full w-full"
-            viewBox="0 0 800 200"
+            viewBox="0 0 800 220"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
           >
+            {/* Background organic blobs */}
+            <defs>
+              <radialGradient id="blob1" cx="30%" cy="40%" r="50%">
+                <stop offset="0%" stopColor="#a8e6a0" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#d0f2c8" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="blob2" cx="70%" cy="50%" r="40%">
+                <stop offset="0%" stopColor="#7cd67e" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#d0f2c8" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="blob3" cx="50%" cy="80%" r="35%">
+                <stop offset="0%" stopColor="#b8e6a8" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#d0f2c8" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            {/* Organic wave layers */}
             <path
-              d="M0,100 C150,160 300,40 450,120 C600,200 700,60 800,100 L800,200 L0,200 Z"
+              d="M0,80 C100,140 200,50 350,110 C500,170 600,40 800,90 L800,220 L0,220 Z"
               fill="#b8e6a8"
               opacity="0.5"
             />
             <path
-              d="M0,140 C200,80 350,180 500,120 C650,60 750,150 800,110 L800,200 L0,200 Z"
+              d="M0,130 C150,70 280,170 430,100 C580,30 680,140 800,100 L800,220 L0,220 Z"
               fill="#a3d993"
               opacity="0.4"
             />
-            <ellipse cx="200" cy="80" rx="120" ry="60" fill="#c2eda0" opacity="0.3" />
-            <ellipse cx="600" cy="60" rx="100" ry="50" fill="#b0e090" opacity="0.25" />
+            <path
+              d="M0,160 C120,120 240,190 400,140 C560,90 680,170 800,150 L800,220 L0,220 Z"
+              fill="#90cf80"
+              opacity="0.3"
+            />
+            {/* Organic blob shapes */}
+            <ellipse cx="180" cy="70" rx="130" ry="65" fill="url(#blob1)" />
+            <ellipse cx="580" cy="55" rx="110" ry="55" fill="url(#blob2)" />
+            <ellipse cx="400" cy="160" rx="90" ry="45" fill="url(#blob3)" />
+            {/* Subtle circles for depth */}
+            <circle cx="120" cy="50" r="40" fill="#c2eda0" opacity="0.25" />
+            <circle cx="650" cy="80" r="35" fill="#b0e090" opacity="0.2" />
+            <circle cx="380" cy="40" r="25" fill="#c8f0b8" opacity="0.3" />
           </svg>
         )}
       </div>
 
       {/* Avatar - overlapping cover */}
-      <div className="flex justify-center -mt-12">
-        <div className="rounded-full border-4 border-white">
+      <div className="flex justify-center -mt-14">
+        <div className="rounded-full border-4 border-white shadow-lg">
           <Avatar
             src={user.avatarUrl}
             name={user.displayName}
@@ -63,22 +90,16 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
       {/* Inspired badge */}
       {user.inspiredCount > 0 && (
         <div className="mt-2 flex justify-center">
-          <Badge variant="green" className="px-3 py-1 text-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-gfm-green/10 border border-gfm-green/20 px-4 py-1.5 text-sm font-medium text-gfm-dark-green">
             <svg
-              className="mr-1.5 h-4 w-4"
-              fill="none"
+              className="h-4 w-4 text-gfm-green"
+              fill="currentColor"
               viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-              />
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
             Inspired {user.inspiredCount} people to help
-          </Badge>
+          </span>
         </div>
       )}
 
@@ -87,7 +108,7 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
         <button className="hover:underline">
           <span className="font-semibold text-gfm-dark">{user.followerCount}</span> followers
         </button>
-        <span className="mx-1">|</span>
+        <span className="mx-2 text-gfm-border">|</span>
         <button className="hover:underline">
           <span className="font-semibold text-gfm-dark">{user.followingCount}</span> following
         </button>

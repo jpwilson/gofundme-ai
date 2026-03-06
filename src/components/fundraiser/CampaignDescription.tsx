@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Fundraiser } from "@/lib/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -15,7 +16,6 @@ export function CampaignDescription({
 }: CampaignDescriptionProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const descriptionLines = fundraiser.description.split("\n");
   const shortDescription = fundraiser.description.slice(0, 280);
   const needsTruncation = fundraiser.description.length > 280;
 
@@ -126,12 +126,40 @@ export function CampaignDescription({
 
       {/* Inline Donate / Share */}
       <div className="flex gap-3">
-        <Button variant="primary" size="md">
+        <Button variant="primary" size="md" fullWidth>
           Donate now
         </Button>
-        <Button variant="secondary" size="md">
+        <Button variant="secondary" size="md" fullWidth>
           Share
         </Button>
+      </div>
+
+      {/* Nonprofit giving CTA - purple/pink gradient - visible on mobile below the description */}
+      <div className="rounded-xl bg-gradient-to-br from-[#6366f1] via-[#8b5cf6] to-[#ec4899] p-5 text-white lg:hidden">
+        <div className="flex items-start gap-3">
+          <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+            <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold leading-snug">
+              Take your nonprofit giving to the next level
+            </p>
+            <p className="mt-1 text-xs text-white/80 leading-relaxed">
+              Set up recurring giving or explore Giving Funds to maximize your impact.
+            </p>
+            <Link
+              href="/giving-funds"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-white hover:underline"
+            >
+              Learn more
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

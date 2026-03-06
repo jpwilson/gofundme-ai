@@ -22,9 +22,9 @@ export function FundraiserPage({
   const allImages = [fundraiser.coverImageUrl, ...fundraiser.images];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
       {/* Title */}
-      <h1 className="mb-6 text-2xl font-bold text-gfm-dark md:text-3xl">
+      <h1 className="mb-6 text-2xl font-bold text-gfm-dark md:text-3xl leading-tight">
         {fundraiser.title}
       </h1>
 

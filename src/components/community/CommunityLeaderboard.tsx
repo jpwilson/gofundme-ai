@@ -11,18 +11,36 @@ interface CommunityLeaderboardProps {
   entries: LeaderboardEntry[];
 }
 
-const podiumOrder = [1, 0, 2]; // display order: 2nd, 1st, 3rd
-const podiumHeights = ["h-28", "h-36", "h-24"];
-const podiumRankColors = [
-  "bg-yellow-400 text-yellow-900", // 1st
-  "bg-gray-300 text-gray-700",     // 2nd
-  "bg-amber-600 text-white",       // 3rd
+// Podium colors matching GoFundMe: 1st = yellow-green, 2nd = light blue, 3rd = orange
+const podiumConfigs = [
+  {
+    // 1st place
+    barColor: "bg-[#b8e986]",
+    rankBg: "bg-[#4a7c10]",
+    rankText: "text-white",
+    height: "h-36",
+    label: "1st",
+  },
+  {
+    // 2nd place
+    barColor: "bg-[#a8d8ea]",
+    rankBg: "bg-[#2b6cb0]",
+    rankText: "text-white",
+    height: "h-28",
+    label: "2nd",
+  },
+  {
+    // 3rd place
+    barColor: "bg-[#ffc078]",
+    rankBg: "bg-[#c05621]",
+    rankText: "text-white",
+    height: "h-24",
+    label: "3rd",
+  },
 ];
-const podiumCircleSizes = [
-  "h-16 w-16", // 1st (center, tallest)
-  "h-14 w-14", // 2nd
-  "h-14 w-14", // 3rd
-];
+
+// Display order: 2nd, 1st, 3rd
+const podiumOrder = [1, 0, 2];
 
 export function CommunityLeaderboard({ entries }: CommunityLeaderboardProps) {
   const [showAll, setShowAll] = useState(false);
@@ -41,24 +59,25 @@ export function CommunityLeaderboard({ entries }: CommunityLeaderboardProps) {
       </div>
 
       {/* Podium */}
-      <div className="flex items-end justify-center gap-4 pb-2">
+      <div className="flex items-end justify-center gap-3 sm:gap-4 pb-2">
         {podiumOrder.map((idx, displayIdx) => {
           const entry = top3[idx];
           if (!entry) return null;
+          const config = podiumConfigs[idx];
           return (
             <div
               key={entry.userId}
               className="flex flex-col items-center"
             >
               {/* Avatar + rank badge */}
-              <div className="relative mb-2">
+              <div className="relative mb-3">
                 <Avatar
                   src={entry.user.avatarUrl}
                   name={entry.user.displayName}
                   size={idx === 0 ? "lg" : "md"}
                 />
                 <span
-                  className={`absolute -bottom-1 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${podiumRankColors[idx]}`}
+                  className={`absolute -bottom-1 left-1/2 -translate-x-1/2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${config.rankBg} ${config.rankText}`}
                 >
                   {entry.rank}
                 </span>
@@ -70,19 +89,13 @@ export function CommunityLeaderboard({ entries }: CommunityLeaderboardProps) {
               </p>
 
               {/* Amount */}
-              <p className="mb-2 text-xs font-medium text-gfm-secondary">
+              <p className="mb-3 text-xs font-bold text-gfm-dark">
                 {formatCompactCurrency(entry.raisedAmount)}
               </p>
 
               {/* Podium bar */}
               <div
-                className={`${podiumHeights[displayIdx]} w-24 rounded-t-xl ${
-                  idx === 0
-                    ? "bg-gfm-green"
-                    : idx === 1
-                    ? "bg-gfm-green/70"
-                    : "bg-gfm-green/50"
-                }`}
+                className={`${config.height} w-20 sm:w-24 rounded-t-xl ${config.barColor}`}
               />
             </div>
           );
@@ -91,12 +104,14 @@ export function CommunityLeaderboard({ entries }: CommunityLeaderboardProps) {
 
       {/* Remaining entries */}
       {showAll && rest.length > 0 && (
-        <div className="mt-6 space-y-3">
+        <div className="mt-6 space-y-2">
           {rest.map((entry) => (
             <div
               key={entry.userId}
-              className={`flex items-center gap-4 rounded-xl border border-gfm-border px-4 py-3 ${
-                entry.isCurrentFundraiser ? "bg-gfm-light-green/30" : "bg-white"
+              className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-colors hover:bg-gfm-bg ${
+                entry.isCurrentFundraiser
+                  ? "border-gfm-green bg-gfm-light-green/30"
+                  : "border-gfm-border bg-white"
               }`}
             >
               <span className="w-6 text-center text-sm font-bold text-gfm-secondary">
@@ -115,7 +130,7 @@ export function CommunityLeaderboard({ entries }: CommunityLeaderboardProps) {
                   {entry.fundraiserTitle}
                 </p>
               </div>
-              <span className="text-sm font-bold text-gfm-dark">
+              <span className="text-sm font-bold text-gfm-dark shrink-0">
                 {formatCompactCurrency(entry.raisedAmount)}
               </span>
             </div>
@@ -126,8 +141,12 @@ export function CommunityLeaderboard({ entries }: CommunityLeaderboardProps) {
       {/* See all button */}
       {rest.length > 0 && (
         <div className="mt-6 flex justify-center">
-          <Button variant="outline" size="sm" onClick={() => setShowAll(!showAll)}>
-            {showAll ? "Show less" : "See all"}
+          <Button
+            variant="outline"
+            size="md"
+            onClick={() => setShowAll(!showAll)}
+          >
+            {showAll ? "Show less" : `See all ${entries.length} fundraisers`}
           </Button>
         </div>
       )}

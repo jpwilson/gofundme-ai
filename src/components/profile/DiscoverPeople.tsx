@@ -14,7 +14,7 @@ export function DiscoverPeople({ suggestedUsers }: DiscoverPeopleProps) {
   if (suggestedUsers.length === 0) return null;
 
   return (
-    <div className="rounded-card bg-gfm-bg p-4">
+    <div className="rounded-xl bg-gfm-bg p-4 border border-gfm-border">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between text-left"
@@ -36,7 +36,7 @@ export function DiscoverPeople({ suggestedUsers }: DiscoverPeopleProps) {
       </button>
 
       {isExpanded && (
-        <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+        <div className="mt-3 flex gap-3 overflow-x-auto pb-1 hide-scrollbar">
           {suggestedUsers.map((user) => (
             <a
               key={user.id}

@@ -88,7 +88,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
   };
 
   return (
-    <article className="rounded-xl border border-gfm-border bg-white p-5">
+    <article className="rounded-xl border border-gfm-border bg-white p-5 transition-shadow hover:shadow-sm">
       {/* Header row: avatar + name + time + menu */}
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
         )}
 
       {/* Engagement row */}
-      <div className="flex items-center gap-5 pt-1">
+      <div className="flex items-center gap-5 border-t border-gfm-border pt-3 mt-3">
         {/* Like */}
         <button
           onClick={handleLike}
@@ -305,7 +305,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
       </div>
 
       {/* Activity cards */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {sorted.map((activity) => (
           <ActivityCard key={activity.id} activity={activity} />
         ))}

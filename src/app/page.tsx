@@ -49,12 +49,12 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="bg-[var(--gfm-light-green)] py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-4 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-[var(--gfm-dark)] md:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight text-[var(--gfm-dark)] md:text-6xl leading-[1.1]">
             Successful fundraisers
             <br />
             start here
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-[var(--gfm-secondary)]">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-[var(--gfm-secondary)] md:text-xl">
             190+ million people helping each other. Join the world&apos;s largest fundraising community.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -74,17 +74,17 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="py-12">
+      <section className="py-12 md:py-16">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="mb-8 text-center text-2xl font-bold text-[var(--gfm-dark)]">
             Browse by category
           </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
             {categories.map((cat) => (
               <Link
                 key={cat.name}
                 href={cat.href}
-                className="flex flex-col items-center gap-2 rounded-xl border border-[var(--gfm-border)] p-4 transition-shadow hover:shadow-md"
+                className="flex flex-col items-center gap-2 rounded-xl border border-[var(--gfm-border)] bg-white p-4 transition-all duration-200 hover:shadow-md hover:border-[var(--gfm-green)]/30 hover:-translate-y-0.5"
               >
                 <span className="text-3xl">{cat.emoji}</span>
                 <span className="text-sm font-medium text-[var(--gfm-dark)]">{cat.name}</span>
@@ -100,9 +100,11 @@ export default function HomePage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center text-center">
-                <stat.icon className="mb-2 h-8 w-8 text-[var(--gfm-green)]" />
+                <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gfm-green)]/15">
+                  <stat.icon className="h-7 w-7 text-[var(--gfm-green)]" />
+                </div>
                 <span className="text-3xl font-bold">{stat.value}</span>
-                <span className="mt-1 text-sm text-gray-300">{stat.label}</span>
+                <span className="mt-1 text-sm text-gray-400">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -110,11 +112,11 @@ export default function HomePage() {
       </section>
 
       {/* Trending Fundraisers */}
-      <section className="py-12">
+      <section className="py-12 md:py-16">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-[var(--gfm-dark)]">Trending fundraisers</h2>
-            <Link href="/search" className="flex items-center text-sm font-medium text-[var(--gfm-green)] hover:underline">
+            <Link href="/search" className="flex items-center text-sm font-semibold text-[var(--gfm-green)] hover:underline">
               See all <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
@@ -123,15 +125,15 @@ export default function HomePage() {
               <Link
                 key={fundraiser.id}
                 href={`/f/${fundraiser.slug}`}
-                className="group overflow-hidden rounded-xl border border-[var(--gfm-border)] transition-shadow hover:shadow-lg"
+                className="group overflow-hidden rounded-xl border border-[var(--gfm-border)] bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="aspect-video overflow-hidden bg-gray-100">
-                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 p-4 text-center text-sm font-medium text-white">
+                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 p-4 text-center text-sm font-medium text-white transition-transform duration-300 group-hover:scale-105">
                     {fundraiser.title}
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-[var(--gfm-dark)] group-hover:text-[var(--gfm-green)]">
+                  <h3 className="font-semibold text-[var(--gfm-dark)] group-hover:text-[var(--gfm-green)] transition-colors line-clamp-2">
                     {fundraiser.title}
                   </h3>
                   <div className="mt-2 flex items-center gap-2">
@@ -170,11 +172,11 @@ export default function HomePage() {
           <div className="grid gap-8 md:grid-cols-3">
             {steps.map((step) => (
               <div key={step.number} className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--gfm-green)] text-xl font-bold text-white">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gfm-green)] text-xl font-bold text-white shadow-lg shadow-[var(--gfm-green)]/25">
                   {step.number}
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-[var(--gfm-dark)]">{step.title}</h3>
-                <p className="text-sm text-[var(--gfm-secondary)]">{step.description}</p>
+                <p className="text-sm text-[var(--gfm-secondary)] leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
@@ -189,19 +191,21 @@ export default function HomePage() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <Shield className="mx-auto mb-4 h-12 w-12 text-[var(--gfm-green)]" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--gfm-light-green)]">
+            <Shield className="h-8 w-8 text-[var(--gfm-green)]" />
+          </div>
           <h2 className="mb-4 text-2xl font-bold text-[var(--gfm-dark)]">
             GoFundMe Giving Guarantee
           </h2>
-          <p className="mx-auto max-w-2xl text-[var(--gfm-secondary)]">
+          <p className="mx-auto max-w-2xl text-[var(--gfm-secondary)] leading-relaxed">
             GoFundMe has the first and only donor protection guarantee in the industry.
             If funds aren&apos;t delivered to the right person, we&apos;ll refund your donation.
           </p>
           <Link
             href="#"
-            className="mt-4 inline-block text-sm font-medium text-[var(--gfm-green)] hover:underline"
+            className="mt-4 inline-block text-sm font-semibold text-[var(--gfm-green)] hover:underline"
           >
             Learn more about our guarantee
           </Link>
@@ -209,25 +213,36 @@ export default function HomePage() {
       </section>
 
       {/* AI Giving Agent CTA - Our Novel Feature */}
-      <section className="bg-gradient-to-r from-[var(--gfm-green)] to-[var(--gfm-dark-green)] py-16 text-white">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <span className="mb-2 inline-block rounded-full bg-white/20 px-3 py-1 text-sm font-medium">
-            New Feature
-          </span>
-          <h2 className="mt-2 text-3xl font-bold">AI Giving Agent</h2>
-          <p className="mx-auto mb-8 mt-4 max-w-2xl text-lg text-white/90">
-            Set a monthly giving pledge and let our AI match your donations to causes you care about.
-            Get impact reports showing exactly how your generosity made a difference.
-          </p>
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link href="/giving-agent">
-              <button className="rounded-full border-2 border-white px-6 py-3 font-medium text-white transition-colors hover:bg-white hover:text-[var(--gfm-green)]">
-                Set up your Giving Pledge
-              </button>
-            </Link>
-            <Link href="/giving-agent" className="text-sm font-medium text-white/80 underline hover:text-white">
-              Learn how it works
-            </Link>
+      <section className="relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[var(--gfm-green)] via-[#028a4a] to-[var(--gfm-dark-green)] py-20 text-white">
+          {/* Decorative background elements */}
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-1/4 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 h-48 w-48 rounded-full bg-white/5 blur-3xl" />
+          </div>
+
+          <div className="relative mx-auto max-w-4xl px-4 text-center">
+            <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 px-4 py-1.5 text-sm font-semibold">
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              New Feature
+            </span>
+            <h2 className="mt-4 text-3xl font-bold md:text-4xl">AI Giving Agent</h2>
+            <p className="mx-auto mb-8 mt-4 max-w-2xl text-lg text-white/85 leading-relaxed">
+              Set a monthly giving pledge and let our AI match your donations to causes you care about.
+              Get impact reports showing exactly how your generosity made a difference.
+            </p>
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <Link href="/giving-agent">
+                <button className="rounded-full bg-white px-8 py-3.5 font-semibold text-[var(--gfm-green)] transition-all duration-200 hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 hover:-translate-y-0.5">
+                  Set up your Giving Pledge
+                </button>
+              </Link>
+              <Link href="/giving-agent" className="text-sm font-semibold text-white/80 underline underline-offset-4 hover:text-white transition-colors">
+                Learn how it works
+              </Link>
+            </div>
           </div>
         </div>
       </section>

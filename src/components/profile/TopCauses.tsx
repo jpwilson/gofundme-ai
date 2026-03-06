@@ -27,7 +27,7 @@ export function TopCauses({ causes }: TopCausesProps) {
         {causes.map((cause) => (
           <div key={cause.type} className="flex flex-col items-center gap-2">
             <div
-              className="flex h-14 w-14 items-center justify-center rounded-full text-2xl"
+              className="flex h-14 w-14 items-center justify-center rounded-full text-2xl transition-transform duration-200 hover:scale-110"
               style={{ backgroundColor: cause.iconBgColor }}
             >
               {causeEmojis[cause.type] || "❤️"}

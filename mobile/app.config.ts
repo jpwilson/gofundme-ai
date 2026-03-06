@@ -1,0 +1,38 @@
+import { ExpoConfig, ConfigContext } from "expo/config";
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: "GoFundMe",
+  slug: "gofundme-clone",
+  scheme: "gofundme",
+  version: "1.0.0",
+  orientation: "portrait",
+  icon: "./assets/icon.png",
+  userInterfaceStyle: "light",
+  splash: {
+    image: "./assets/splash-icon.png",
+    resizeMode: "contain",
+    backgroundColor: "#02a95c",
+  },
+  ios: {
+    supportsTablet: true,
+    bundleIdentifier: "com.gofundme.clone",
+  },
+  android: {
+    adaptiveIcon: {
+      backgroundColor: "#02a95c",
+      foregroundImage: "./assets/android-icon-foreground.png",
+      backgroundImage: "./assets/android-icon-background.png",
+      monochromeImage: "./assets/android-icon-monochrome.png",
+    },
+    package: "com.gofundme.clone",
+  },
+  web: {
+    favicon: "./assets/favicon.png",
+    bundler: "metro",
+  },
+  plugins: ["expo-router"],
+  extra: {
+    apiBaseUrl: process.env.API_BASE_URL || "http://localhost:3000/api",
+  },
+});

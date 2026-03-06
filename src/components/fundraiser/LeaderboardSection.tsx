@@ -12,13 +12,13 @@ interface LeaderboardSectionProps {
 }
 
 const podiumColors: Record<number, string> = {
-  1: "bg-[#f5c542]",
-  2: "bg-[#c5e8f7]",
-  3: "bg-[#f5a623]",
+  1: "bg-[#b8e986]",
+  2: "bg-[#a8d8ea]",
+  3: "bg-[#ffc078]",
 };
 
 const podiumTextColors: Record<number, string> = {
-  1: "text-[#4a3800]",
+  1: "text-[#2d5016]",
   2: "text-[#1a4a5c]",
   3: "text-[#5c3300]",
 };
