@@ -107,6 +107,13 @@ export function Navbar() {
     { label: "Contact us", href: "/contact" },
   ];
 
+  const ideationItems = [
+    { label: "Fundraiser Page", href: "/f/la-wildfire-alerts-and-recovery", description: "Campaign detail & donation flow" },
+    { label: "Community Page", href: "/communities/watch-duty", description: "Community hub & leaderboard" },
+    { label: "Profile Page", href: "/u/janahan", description: "User profile & giving history" },
+    { label: "Metrics Lab", href: "/metrics-lab", description: "Analytics & impact dashboard" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-gfm-border bg-white/95 backdrop-blur-sm">
       <nav className="mx-auto flex h-[64px] max-w-7xl items-center justify-between px-4 lg:px-8">
@@ -159,6 +166,7 @@ export function Navbar() {
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
             <NavDropdown label="About" items={aboutItems} />
+            <NavDropdown label="Ideation" badge="JP" items={ideationItems} />
           </div>
           <button
             className="relative p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
@@ -193,6 +201,7 @@ export function Navbar() {
               items={givingFundsItems}
             />
             <MobileSection title="About" items={aboutItems} />
+            <MobileSection title="Ideation" badge="JP" items={ideationItems} />
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
               <Link
                 href="/sign-in"
