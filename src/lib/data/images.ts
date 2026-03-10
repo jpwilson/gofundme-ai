@@ -6,11 +6,11 @@
 export const IMAGES = {
   // Fundraiser cover images
   wildfire: {
-    cover: 'https://images.unsplash.com/photo-1634009653379-a97409ee15de?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1609924211262-1f6949db6308?w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1507680465142-ef2223e23308?w=600&q=80',
-      'https://images.unsplash.com/photo-1764639568076-045ee723cfa4?w=600&q=80',
-      'https://images.unsplash.com/photo-1736217044407-822311e9c226?w=600&q=80',
+      'https://images.unsplash.com/photo-1680117576135-5b4423d4f016?w=600&q=80',
+      'https://images.unsplash.com/photo-1576294540495-ed1041493f8e?w=600&q=80',
+      'https://images.unsplash.com/photo-1705385961910-1abcc1541089?w=600&q=80',
     ],
   },
   medical: {
