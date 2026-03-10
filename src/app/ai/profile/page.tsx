@@ -1,323 +1,346 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { users, getActivitiesByUserId, donations } from '@/lib/data/mock';
-import { formatCurrency } from '@/lib/utils/format';
-import { Sparkles, User, TrendingUp, Target, ChevronRight, Loader2, BookOpen } from 'lucide-react';
+import { users, getActivitiesByUserId, donations, fundraisers, causes } from '@/lib/data/mock';
+import { IMAGES } from '@/lib/data/images';
+import { formatCurrency, formatNumber } from '@/lib/utils/format';
+import { Heart, Share2, Users, MapPin, Calendar, ChevronRight, TrendingUp, ArrowUpRight } from 'lucide-react';
 
-const user = users[0]; // Janahan
+const user = users[0];
 const userActivities = getActivitiesByUserId(user.id);
 const userDonations = donations.filter((d) => d.donorId === user.id);
+const totalGiven = userDonations.reduce((sum, d) => sum + d.amount, 0);
 
-interface GivingInsights {
-  givingPersonality: { type: string; description: string; traits: string[] };
-  patterns: { averageDonation: number; preferredTime: string; preferredDay: string; messageRate: number; shareRate: number };
-  suggestions: string[];
-}
-
-interface Recommendation {
-  slug: string;
-  title: string;
-  reason: string;
-  urgency: string;
-  matchScore: number;
-}
-
-export default function AIProfilePage() {
-  const [narrative, setNarrative] = useState<string | null>(null);
-  const [narrativeLoading, setNarrativeLoading] = useState(false);
-  const [insights, setInsights] = useState<GivingInsights | null>(null);
-  const [insightsLoading, setInsightsLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
-  const [recsLoading, setRecsLoading] = useState(false);
-
-  const callProfileInsights = async (type: string) => {
-    const res = await fetch('/api/ai/profile-insights', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        feature: type,
-        user: { displayName: user.displayName, location: user.location, bio: user.bio, followerCount: user.followerCount },
-        activities: userActivities,
-        donations: userDonations,
-      }),
-    });
-    return res.json();
-  };
-
-  const runNarrative = async () => {
-    setNarrativeLoading(true);
-    try {
-      const { data } = await callProfileInsights('narrative');
-      setNarrative(data.content);
-    } catch {
-      setNarrative('Failed to generate narrative.');
+// Compute cause affinity from donation history
+const causeAffinity = (() => {
+  const affinityMap: Record<string, { amount: number; count: number }> = {};
+  for (const donation of userDonations) {
+    const fund = fundraisers.find((f) => f.id === donation.fundraiserId);
+    if (fund) {
+      if (!affinityMap[fund.category]) affinityMap[fund.category] = { amount: 0, count: 0 };
+      affinityMap[fund.category].amount += donation.amount;
+      affinityMap[fund.category].count++;
     }
-    setNarrativeLoading(false);
-  };
+  }
+  return Object.entries(affinityMap)
+    .map(([category, data]) => {
+      const cause = causes.find((c) => c.type === category);
+      return { category, label: cause?.label || category, color: cause?.iconBgColor || '#e0e0e0', ...data };
+    })
+    .sort((a, b) => b.amount - a.amount);
+})();
 
-  const runInsights = async () => {
-    setInsightsLoading(true);
-    try {
-      const { data } = await callProfileInsights('insights');
-      setInsights(data.parsed);
-    } catch {
-      setInsights(null);
-    }
-    setInsightsLoading(false);
-  };
+// Giving personality derived from behavior
+const givingPersonality = (() => {
+  const avgDonation = totalGiven / Math.max(userDonations.length, 1);
+  const hasEmergency = causeAffinity.some((c) => c.category === 'emergency');
+  const donationCount = userDonations.length;
+  const messageRate = userDonations.filter((d) => d.message).length / Math.max(donationCount, 1);
 
-  const runRecommendations = async () => {
-    setRecsLoading(true);
-    try {
-      const { data } = await callProfileInsights('recommendations');
-      setRecommendations(data.parsed?.recommendations || []);
-    } catch {
-      setRecommendations(null);
-    }
-    setRecsLoading(false);
-  };
+  if (hasEmergency && donationCount >= 2) return { type: 'Crisis Responder', description: 'You show up when it matters most, rallying support during emergencies and natural disasters.', color: '#FDBA74' };
+  if (avgDonation > 15000 && messageRate > 0.5) return { type: 'Champion Giver', description: 'Your generous contributions and heartfelt messages inspire others to give.', color: '#93C5FD' };
+  if (donationCount >= 3) return { type: 'Steady Supporter', description: 'Your consistent giving across causes builds lasting impact over time.', color: '#6EE7B7' };
+  return { type: 'Community Builder', description: 'You bring people together around causes that matter, amplifying collective impact.', color: '#C4B5FD' };
+})();
 
-  const totalGiven = userDonations.reduce((sum, d) => sum + d.amount, 0);
+// Precomputed ring offsets for the cause affinity SVG
+const causeAffinityRing = (() => {
+  const total = causeAffinity.reduce((s, c) => s + c.amount, 0);
+  let offset = 0;
+  return causeAffinity.map((cause) => {
+    const pct = (cause.amount / total) * 100;
+    const item = { ...cause, pct, offset };
+    offset += pct;
+    return item;
+  });
+})();
+
+// Ripple effect: fundraisers shared that received follow-on donations
+const rippleEffect = {
+  fundraisersShared: 3,
+  followOnDonors: 8,
+  followOnAmount: 75000,
+};
+
+// Recommended causes based on affinity
+const recommendedFundraisers = fundraisers
+  .filter((f) => !userDonations.some((d) => d.fundraiserId === f.id))
+  .map((f) => {
+    const categoryMatch = causeAffinity.some((c) => c.category === f.category);
+    return { ...f, relevance: categoryMatch ? 'Based on your giving history' : 'Trending in your area' };
+  });
+
+// Network giving
+const networkDonors: { name: string; sharedCauses: number; avatar: string | null }[] = [
+  { name: 'Tim Cadogan', sharedCauses: 2, avatar: IMAGES.avatars.tim },
+  { name: 'Arnie Katz', sharedCauses: 1, avatar: IMAGES.avatars.arnie },
+  { name: 'Maria Gonzalez', sharedCauses: 1, avatar: IMAGES.avatars.maria },
+];
+
+export default function SmartProfilePage() {
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 100);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-gfm-secondary mb-2">
-          <Link href="/u/janahan" className="hover:text-gfm-green transition-colors">
-            {user.displayName}&apos;s Profile
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-gfm-green font-medium">AI-Enhanced View</span>
+    <div className="min-h-screen bg-white">
+      {/* Cover + Profile Header */}
+      <div className="relative">
+        <div className="h-48 overflow-hidden">
+          <img src={IMAGES.covers.janahan} alt="Cover" className="w-full h-full object-cover" />
         </div>
-        <h1 className="text-3xl font-bold text-gfm-dark flex items-center gap-3">
-          <Sparkles className="h-7 w-7 text-gfm-purple" />
-          AI Profile Intelligence
-        </h1>
-        <p className="mt-2 text-gfm-secondary">
-          AI-powered insights that help donors understand their impact, discover their giving style, and find new causes.
-        </p>
-      </div>
-
-      {/* Profile Summary */}
-      <div className="rounded-xl border border-gfm-border bg-white p-6 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gfm-green to-gfm-dark-green flex items-center justify-center">
-            <span className="text-xl font-bold text-white">{user.displayName.charAt(0)}</span>
-          </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-gfm-dark">{user.displayName}</h2>
-            <p className="text-sm text-gfm-secondary">{user.location} &middot; Member since {new Date(user.createdAt).getFullYear()}</p>
-          </div>
-          <div className="hidden md:flex items-center gap-6 text-center">
-            <div>
-              <div className="text-xl font-bold text-gfm-green">{formatCurrency(totalGiven)}</div>
-              <div className="text-xs text-gfm-secondary">Total Given</div>
-            </div>
-            <div>
-              <div className="text-xl font-bold text-gfm-dark">{userDonations.length}</div>
-              <div className="text-xs text-gfm-secondary">Donations</div>
-            </div>
-            <div>
-              <div className="text-xl font-bold text-gfm-dark">{user.inspiredCount}</div>
-              <div className="text-xs text-gfm-secondary">Inspired</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* AI Features */}
-      <div className="space-y-6">
-        {/* Impact Narrative */}
-        <div className="rounded-xl border border-gfm-border bg-white overflow-hidden">
-          <div className="bg-gradient-to-r from-gfm-purple/10 to-gfm-pink/10 px-6 py-4 border-b border-gfm-border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-gfm-purple" />
-                <h3 className="font-bold text-gfm-dark">Your Impact Narrative</h3>
+        <div className="mx-auto max-w-3xl px-4">
+          <div className="relative -mt-16 flex items-end gap-4 pb-6">
+            <img
+              src={user.avatarUrl || IMAGES.avatars.janahan}
+              alt={user.displayName}
+              className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover flex-shrink-0"
+            />
+            <div className="pb-1 flex-1 min-w-0">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-gfm-dark">{user.displayName}</h1>
+                {/* Giving Personality Badge */}
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                  style={{ backgroundColor: givingPersonality.color, color: '#1a1a1a' }}
+                >
+                  {givingPersonality.type}
+                </span>
               </div>
-              <button
-                onClick={runNarrative}
-                disabled={narrativeLoading}
-                className="rounded-full bg-gfm-purple px-4 py-1.5 text-xs font-semibold text-white hover:bg-gfm-purple/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              <div className="flex items-center gap-3 mt-1 text-sm text-gfm-secondary flex-wrap">
+                {user.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {user.location}
+                  </span>
+                )}
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Joined {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-3xl px-4 pb-16">
+        {/* Bio */}
+        {user.bio && (
+          <p className="text-sm text-gfm-secondary leading-relaxed mb-6">{user.bio}</p>
+        )}
+
+        {/* Personality Description */}
+        <div className="rounded-xl bg-gradient-to-r from-gfm-bg to-white border border-gfm-border p-4 mb-8">
+          <p className="text-sm text-gfm-secondary italic">&ldquo;{givingPersonality.description}&rdquo;</p>
+        </div>
+
+        {/* Impact Summary — "Giving Wrapped" */}
+        <section className="mb-10">
+          <h2 className="text-lg font-bold text-gfm-dark mb-4">Your Impact</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: 'Total given', value: formatCurrency(totalGiven), sub: `across ${userDonations.length} donations` },
+              { label: 'People helped', value: '12', sub: 'through your contributions' },
+              { label: 'Causes supported', value: String(causeAffinity.length), sub: causeAffinity.map((c) => c.label).join(', ') },
+              { label: 'Inspired', value: formatNumber(user.inspiredCount), sub: 'people to take action' },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className={`rounded-xl border border-gfm-border p-4 transition-all duration-700 ${
+                  animated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+                }`}
               >
-                {narrativeLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                {narrativeLoading ? 'Writing...' : 'Generate Story'}
-              </button>
-            </div>
-            <p className="text-xs text-gfm-secondary mt-1">AI-generated personal narrative about your giving journey and impact</p>
-          </div>
-          <div className="p-6 min-h-[200px]">
-            {narrative ? (
-              <div className="prose prose-sm max-w-none text-gfm-dark">
-                {narrative.split('\n').map((line, i) => {
-                  if (line.startsWith('##')) return <h3 key={i} className="text-lg font-bold text-gfm-dark mt-4 mb-2">{line.replace(/^#+\s*/, '')}</h3>;
-                  if (line.startsWith('**')) return <p key={i} className="mb-2" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />;
-                  return line.trim() ? <p key={i} className="mb-2 text-sm text-gfm-secondary leading-relaxed">{line}</p> : null;
-                })}
+                <div className="text-2xl font-bold text-gfm-dark">{stat.value}</div>
+                <div className="text-xs font-medium text-gfm-dark mt-1">{stat.label}</div>
+                <div className="text-[10px] text-gfm-secondary mt-0.5">{stat.sub}</div>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                <BookOpen className="h-10 w-10 text-gfm-border mb-3" />
-                <p className="text-sm text-gfm-secondary">Generate a personalized story about your giving journey</p>
-              </div>
-            )}
+            ))}
           </div>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Giving Insights */}
-          <div className="rounded-xl border border-gfm-border bg-white overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 px-6 py-4 border-b border-gfm-border">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-blue-500" />
-                  <h3 className="font-bold text-gfm-dark">Giving Personality</h3>
-                </div>
-                <button
-                  onClick={runInsights}
-                  disabled={insightsLoading}
-                  className="rounded-full bg-blue-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {insightsLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <User className="h-3 w-3" />}
-                  {insightsLoading ? 'Analyzing...' : 'Discover Style'}
-                </button>
+        {/* Cause Affinity Wheel */}
+        <section className="mb-10">
+          <h2 className="text-lg font-bold text-gfm-dark mb-4">What You Care About</h2>
+          <div className="flex items-center gap-6">
+            {/* Visual affinity ring */}
+            <div className="relative w-32 h-32 flex-shrink-0">
+              <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                {causeAffinityRing.map((item) => (
+                  <circle
+                    key={item.category}
+                    cx="18" cy="18" r="14"
+                    fill="none"
+                    stroke={item.color}
+                    strokeWidth="4"
+                    strokeDasharray={`${item.pct} ${100 - item.pct}`}
+                    strokeDashoffset={`${-item.offset}`}
+                    className="transition-all duration-1000"
+                  />
+                ))}
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Heart className="h-6 w-6 text-gfm-green" />
               </div>
             </div>
-            <div className="p-6 min-h-[280px]">
-              {insights ? (
+            {/* Legend */}
+            <div className="flex-1 space-y-2">
+              {causeAffinity.map((cause) => {
+                const total = causeAffinity.reduce((s, c) => s + c.amount, 0);
+                const pct = Math.round((cause.amount / total) * 100);
+                return (
+                  <div key={cause.category} className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cause.color }} />
+                    <span className="text-sm text-gfm-dark flex-1">{cause.label}</span>
+                    <span className="text-sm font-medium text-gfm-dark">{pct}%</span>
+                    <span className="text-xs text-gfm-secondary">{formatCurrency(cause.amount)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Ripple Effect */}
+        <section className="mb-10">
+          <h2 className="text-lg font-bold text-gfm-dark mb-4">Your Ripple Effect</h2>
+          <div className="rounded-xl border border-gfm-border bg-gradient-to-r from-green-50/50 to-white p-5">
+            <div className="flex items-center gap-6 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gfm-light-green flex items-center justify-center">
+                  <Share2 className="h-5 w-5 text-gfm-green" />
+                </div>
                 <div>
-                  {/* Personality Type */}
-                  <div className="text-center mb-4 pb-4 border-b border-gfm-border">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 mb-2">
-                      <User className="h-7 w-7 text-blue-600" />
-                    </div>
-                    <div className="text-lg font-bold text-gfm-dark">{insights.givingPersonality.type}</div>
-                    <p className="text-xs text-gfm-secondary mt-1">{insights.givingPersonality.description}</p>
-                  </div>
-                  {/* Traits */}
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {insights.givingPersonality.traits.map((t, i) => (
-                      <span key={i} className="rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-xs text-blue-700">{t}</span>
-                    ))}
-                  </div>
-                  {/* Patterns */}
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gfm-secondary">Avg donation</span>
-                      <span className="font-medium text-gfm-dark">{formatCurrency(insights.patterns.averageDonation)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gfm-secondary">Preferred time</span>
-                      <span className="font-medium text-gfm-dark">{insights.patterns.preferredTime}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gfm-secondary">Message rate</span>
-                      <span className="font-medium text-gfm-dark">{Math.round(insights.patterns.messageRate * 100)}%</span>
-                    </div>
-                  </div>
-                  {/* Suggestions */}
-                  {insights.suggestions.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gfm-border">
-                      <h4 className="text-xs font-semibold text-gfm-secondary uppercase tracking-wide mb-2">AI Suggestions</h4>
-                      {insights.suggestions.map((s, i) => (
-                        <p key={i} className="text-xs text-gfm-secondary mb-1 flex items-start gap-1.5">
-                          <Sparkles className="h-3 w-3 text-blue-400 mt-0.5 flex-shrink-0" />
-                          {s}
-                        </p>
-                      ))}
-                    </div>
-                  )}
+                  <div className="text-lg font-bold text-gfm-dark">{rippleEffect.fundraisersShared}</div>
+                  <div className="text-xs text-gfm-secondary">fundraisers shared</div>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center py-8">
-                  <User className="h-10 w-10 text-gfm-border mb-3" />
-                  <p className="text-sm text-gfm-secondary">Discover your giving personality and patterns</p>
+              </div>
+              <div className="text-gfm-border">
+                <ChevronRight className="h-5 w-5" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-blue-500" />
                 </div>
-              )}
+                <div>
+                  <div className="text-lg font-bold text-gfm-dark">{rippleEffect.followOnDonors}</div>
+                  <div className="text-xs text-gfm-secondary">donors followed your shares</div>
+                </div>
+              </div>
+              <div className="text-gfm-border">
+                <ChevronRight className="h-5 w-5" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-gfm-dark">{formatCurrency(rippleEffect.followOnAmount)}</div>
+                  <div className="text-xs text-gfm-secondary">raised from your shares</div>
+                </div>
+              </div>
             </div>
+            <p className="text-xs text-gfm-secondary mt-3">
+              When you share a fundraiser, it reaches people who trust your judgment. Your shares have inspired {rippleEffect.followOnDonors} additional donations.
+            </p>
           </div>
+        </section>
 
-          {/* Fundraiser Recommendations */}
-          <div className="rounded-xl border border-gfm-border bg-white overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-gfm-border">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-amber-600" />
-                  <h3 className="font-bold text-gfm-dark">For You</h3>
+        {/* Network */}
+        <section className="mb-10">
+          <h2 className="text-lg font-bold text-gfm-dark mb-4">Giving Together</h2>
+          <div className="space-y-3">
+            {networkDonors.map((donor) => (
+              <div key={donor.name} className="flex items-center gap-3 rounded-lg border border-gfm-border p-3 hover:bg-gfm-bg/50 transition-colors">
+                {donor.avatar ? (
+                  <img src={donor.avatar} alt={donor.name} className="w-9 h-9 rounded-full object-cover" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-gfm-bg flex items-center justify-center text-sm font-bold text-gfm-secondary">
+                    {donor.name.charAt(0)}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-gfm-dark">{donor.name}</span>
+                  <span className="text-xs text-gfm-secondary ml-2">{donor.sharedCauses} cause{donor.sharedCauses > 1 ? 's' : ''} in common</span>
                 </div>
-                <button
-                  onClick={runRecommendations}
-                  disabled={recsLoading}
-                  className="rounded-full bg-amber-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {recsLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Target className="h-3 w-3" />}
-                  {recsLoading ? 'Finding...' : 'Get Recommendations'}
+                <button className="text-xs text-gfm-green font-medium hover:text-gfm-dark-green transition-colors">
+                  View profile
                 </button>
               </div>
-              <p className="text-xs text-gfm-secondary mt-1">Personalized fundraiser suggestions based on your giving history</p>
-            </div>
-            <div className="p-6 min-h-[280px]">
-              {recommendations ? (
-                <div className="space-y-3">
-                  {recommendations.map((rec, i) => (
-                    <Link
-                      key={i}
-                      href={`/f/${rec.slug}`}
-                      className="block rounded-lg border border-gfm-border p-4 hover:border-amber-300 hover:shadow-md transition-all group"
-                    >
-                      <div className="flex items-start justify-between mb-1">
-                        <h4 className="font-bold text-sm text-gfm-dark group-hover:text-gfm-green transition-colors">{rec.title}</h4>
-                        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            rec.urgency === 'high' ? 'bg-red-100 text-red-700' : rec.urgency === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700'
-                          }`}>{rec.urgency.toUpperCase()}</span>
-                          <span className="text-xs font-bold text-amber-600">{rec.matchScore}%</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gfm-secondary">{rec.reason}</p>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center py-8">
-                  <Target className="h-10 w-10 text-gfm-border mb-3" />
-                  <p className="text-sm text-gfm-secondary">Get AI-curated fundraiser recommendations</p>
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Instrumentation Note */}
-      <div className="mt-8 rounded-xl border border-dashed border-gfm-border bg-gfm-bg/50 p-6">
-        <h3 className="font-bold text-gfm-dark mb-2 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-gfm-green animate-pulse" />
-          Instrumentation & Metrics
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gfm-secondary">
-          <div>
-            <strong className="text-gfm-dark">What we track:</strong>
-            <ul className="mt-1 space-y-1 list-disc list-inside">
-              <li>Narrative generation engagement (reads, shares)</li>
-              <li>Recommendation click-through to donation</li>
-              <li>Giving personality type distribution</li>
-              <li>Suggestion adoption rates</li>
-            </ul>
+        {/* You Might Care About */}
+        <section className="mb-10">
+          <h2 className="text-lg font-bold text-gfm-dark mb-1">You might care about</h2>
+          <p className="text-xs text-gfm-secondary mb-4">People with similar giving patterns are rallying around these</p>
+          <div className="space-y-3">
+            {recommendedFundraisers.slice(0, 3).map((fund) => (
+              <Link
+                key={fund.slug}
+                href={`/f/${fund.slug}`}
+                className="flex items-center gap-4 rounded-xl border border-gfm-border p-4 hover:border-gfm-green/30 hover:shadow-sm transition-all group"
+              >
+                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                  <img src={fund.coverImageUrl} alt={fund.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-bold text-gfm-dark group-hover:text-gfm-green transition-colors truncate">{fund.title}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 h-1.5 bg-gfm-bg rounded-full overflow-hidden">
+                      <div className="h-full bg-gfm-green rounded-full" style={{ width: `${Math.min(100, (fund.raisedAmount / fund.goalAmount) * 100)}%` }} />
+                    </div>
+                    <span className="text-xs text-gfm-secondary flex-shrink-0">{formatCurrency(fund.raisedAmount)} raised</span>
+                  </div>
+                  <p className="text-[10px] text-gfm-secondary mt-1">{fund.relevance}</p>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-gfm-secondary group-hover:text-gfm-green transition-colors flex-shrink-0" />
+              </Link>
+            ))}
           </div>
-          <div>
-            <strong className="text-gfm-dark">Why we track it:</strong>
-            <ul className="mt-1 space-y-1 list-disc list-inside">
-              <li>Drive repeat visits through personalized experiences</li>
-              <li>Measure recommendation quality (conversion rate)</li>
-              <li>Improve matching algorithms with feedback loops</li>
-              <li>Optimize for meaningful actions (Donate, Share, Follow)</li>
-            </ul>
+        </section>
+
+        {/* Recent Activity */}
+        <section>
+          <h2 className="text-lg font-bold text-gfm-dark mb-4">Recent Activity</h2>
+          <div className="space-y-4">
+            {userActivities.slice(0, 5).map((activity) => (
+              <div key={activity.id} className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-gfm-light-green flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Heart className="h-4 w-4 text-gfm-green" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gfm-dark">
+                    {activity.type === 'donation' && activity.donationAmount
+                      ? `Donated ${formatCurrency(activity.donationAmount)} to `
+                      : activity.type === 'fundraiser_created'
+                      ? 'Created '
+                      : activity.type === 'fundraiser_update'
+                      ? 'Posted an update to '
+                      : 'Commented on '}
+                    {activity.fundraiser && (
+                      <Link href={`/f/${activity.fundraiser.slug}`} className="font-medium text-gfm-green hover:text-gfm-dark-green">
+                        {activity.fundraiser.title}
+                      </Link>
+                    )}
+                  </p>
+                  {activity.content && (
+                    <p className="text-xs text-gfm-secondary mt-0.5 line-clamp-2">{activity.content}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-1 text-[10px] text-gfm-secondary">
+                    <span>{new Date(activity.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    <span>{activity.likeCount} likes</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

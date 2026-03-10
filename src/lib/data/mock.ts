@@ -9,6 +9,7 @@ import type {
   Highlight,
   GivingPledge,
 } from '../types';
+import { IMAGES } from './images';
 
 // ============================================================
 // Users
@@ -20,8 +21,8 @@ export const users: User[] = [
     email: 'janahan@example.com',
     username: 'janahan',
     displayName: 'Janahan Sivaraman',
-    avatarUrl: '/avatars/janahan.jpg',
-    coverImageUrl: '/covers/janahan-cover.jpg',
+    avatarUrl: IMAGES.avatars.janahan,
+    coverImageUrl: IMAGES.covers.janahan,
     bio: 'Passionate about community support and disaster relief. Proud organizer of several wildfire recovery fundraisers.',
     location: 'Los Angeles, CA',
     followerCount: 142,
@@ -35,8 +36,8 @@ export const users: User[] = [
     email: 'tim@example.com',
     username: 'timcadogan',
     displayName: 'Tim Cadogan',
-    avatarUrl: '/avatars/tim.jpg',
-    coverImageUrl: '/covers/tim-cover.jpg',
+    avatarUrl: IMAGES.avatars.tim,
+    coverImageUrl: IMAGES.covers.tim,
     bio: 'CEO of GoFundMe. Helping people help each other, one campaign at a time.',
     location: 'San Diego, CA',
     followerCount: 12400,
@@ -49,7 +50,7 @@ export const users: User[] = [
     email: 'arnie@example.com',
     username: 'arniekatz',
     displayName: 'Arnie Katz',
-    avatarUrl: '/avatars/arnie.jpg',
+    avatarUrl: IMAGES.avatars.arnie,
     coverImageUrl: null,
     bio: 'Animal lover and wildlife advocate. Organizer of the LA Animal Rescue Fund.',
     location: 'Pasadena, CA',
@@ -71,8 +72,8 @@ export const communities: Community[] = [
     name: 'Watch Duty',
     description:
       'Watch Duty is a nonprofit wildfire tracker providing real-time alerts and information to keep communities safe. We support fundraisers helping those affected by wildfires across the country.',
-    bannerImageUrl: '/communities/watch-duty-banner.jpg',
-    iconUrl: '/communities/watch-duty-icon.png',
+    bannerImageUrl: IMAGES.community.banner,
+    iconUrl: IMAGES.community.icon,
     followerCount: 54300,
     totalRaised: 1_847_50000, // $18,475,000.00
     totalDonations: 98200,
@@ -97,7 +98,7 @@ export const fundraisers: Fundraiser[] = [
     community: {
       name: 'Watch Duty',
       slug: 'watch-duty',
-      iconUrl: '/communities/watch-duty-icon.png',
+      iconUrl: IMAGES.community.icon,
     },
     title: 'LA Wildfire Alerts & Recovery Fund',
     description:
@@ -108,12 +109,8 @@ export const fundraisers: Fundraiser[] = [
     category: 'emergency',
     status: 'active',
     isTaxDeductible: true,
-    coverImageUrl: '/fundraisers/wildfire-cover.jpg',
-    images: [
-      '/fundraisers/wildfire-1.jpg',
-      '/fundraisers/wildfire-2.jpg',
-      '/fundraisers/wildfire-3.jpg',
-    ],
+    coverImageUrl: IMAGES.wildfire.cover,
+    images: IMAGES.wildfire.gallery,
     createdAt: '2025-01-12T09:00:00Z',
     updatedAt: '2025-03-01T14:30:00Z',
   },
@@ -125,7 +122,7 @@ export const fundraisers: Fundraiser[] = [
     beneficiaryId: null,
     beneficiary: {
       name: 'Sarah Mitchell',
-      avatarUrl: '/avatars/sarah.jpg',
+      avatarUrl: IMAGES.avatars.sarah,
       isVerified: true,
     },
     communityId: null,
@@ -139,8 +136,8 @@ export const fundraisers: Fundraiser[] = [
     category: 'medical',
     status: 'active',
     isTaxDeductible: false,
-    coverImageUrl: '/fundraisers/medical-cover.jpg',
-    images: ['/fundraisers/medical-1.jpg'],
+    coverImageUrl: IMAGES.medical.cover,
+    images: IMAGES.medical.gallery,
     createdAt: '2025-02-01T12:00:00Z',
     updatedAt: '2025-03-04T08:15:00Z',
   },
@@ -162,11 +159,8 @@ export const fundraisers: Fundraiser[] = [
     category: 'animals',
     status: 'active',
     isTaxDeductible: true,
-    coverImageUrl: '/fundraisers/animal-rescue-cover.jpg',
-    images: [
-      '/fundraisers/animal-rescue-1.jpg',
-      '/fundraisers/animal-rescue-2.jpg',
-    ],
+    coverImageUrl: IMAGES.animals.cover,
+    images: IMAGES.animals.gallery,
     createdAt: '2025-01-18T15:00:00Z',
     updatedAt: '2025-03-02T11:00:00Z',
   },
@@ -182,7 +176,7 @@ export const donations: Donation[] = [
     id: 'don-1',
     fundraiserId: 'fund-1',
     donorId: 'user-2',
-    donor: { displayName: 'Tim Cadogan', avatarUrl: '/avatars/tim.jpg' },
+    donor: { displayName: 'Tim Cadogan', avatarUrl: IMAGES.avatars.tim },
     amount: 30000, // $300.00
     tipAmount: 4500,
     isAnonymous: false,
@@ -194,7 +188,7 @@ export const donations: Donation[] = [
     id: 'don-2',
     fundraiserId: 'fund-1',
     donorId: 'user-3',
-    donor: { displayName: 'Arnie Katz', avatarUrl: '/avatars/arnie.jpg' },
+    donor: { displayName: 'Arnie Katz', avatarUrl: IMAGES.avatars.arnie },
     amount: 15000, // $150.00
     tipAmount: 2250,
     isAnonymous: false,
@@ -243,7 +237,7 @@ export const donations: Donation[] = [
     id: 'don-6',
     fundraiserId: 'fund-2',
     donorId: 'user-1',
-    donor: { displayName: 'Janahan Sivaraman', avatarUrl: '/avatars/janahan.jpg' },
+    donor: { displayName: 'Janahan Sivaraman', avatarUrl: IMAGES.avatars.janahan },
     amount: 20000, // $200.00
     tipAmount: 3000,
     isAnonymous: false,
@@ -280,7 +274,7 @@ export const donations: Donation[] = [
     id: 'don-9',
     fundraiserId: 'fund-3',
     donorId: 'user-1',
-    donor: { displayName: 'Janahan Sivaraman', avatarUrl: '/avatars/janahan.jpg' },
+    donor: { displayName: 'Janahan Sivaraman', avatarUrl: IMAGES.avatars.janahan },
     amount: 10000, // $100.00
     tipAmount: 1500,
     isAnonymous: false,
@@ -292,7 +286,7 @@ export const donations: Donation[] = [
     id: 'don-10',
     fundraiserId: 'fund-3',
     donorId: 'user-2',
-    donor: { displayName: 'Tim Cadogan', avatarUrl: '/avatars/tim.jpg' },
+    donor: { displayName: 'Tim Cadogan', avatarUrl: IMAGES.avatars.tim },
     amount: 25000, // $250.00
     tipAmount: 3750,
     isAnonymous: false,
@@ -340,7 +334,7 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'LA Wildfire Alerts & Recovery Fund',
       slug: 'la-wildfire-alerts-and-recovery',
-      coverImageUrl: '/fundraisers/wildfire-cover.jpg',
+      coverImageUrl: IMAGES.wildfire.cover,
       raisedAmount: 210200,
       goalAmount: 300000,
     },
@@ -348,10 +342,10 @@ export const activities: Activity[] = [
     community: {
       name: 'Watch Duty',
       slug: 'watch-duty',
-      iconUrl: '/communities/watch-duty-icon.png',
+      iconUrl: IMAGES.community.icon,
     },
     content: 'Started a fundraiser for LA wildfire recovery through Watch Duty.',
-    imageUrl: '/fundraisers/wildfire-cover.jpg',
+    imageUrl: IMAGES.wildfire.cover,
     donationAmount: null,
     likeCount: 24,
     commentCount: 8,
@@ -366,7 +360,7 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'LA Wildfire Alerts & Recovery Fund',
       slug: 'la-wildfire-alerts-and-recovery',
-      coverImageUrl: '/fundraisers/wildfire-cover.jpg',
+      coverImageUrl: IMAGES.wildfire.cover,
       raisedAmount: 210200,
       goalAmount: 300000,
     },
@@ -374,7 +368,7 @@ export const activities: Activity[] = [
     community: {
       name: 'Watch Duty',
       slug: 'watch-duty',
-      iconUrl: '/communities/watch-duty-icon.png',
+      iconUrl: IMAGES.community.icon,
     },
     content: null,
     imageUrl: null,
@@ -392,14 +386,14 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'Help Sarah Fight Cancer',
       slug: 'help-sarah-fight-cancer',
-      coverImageUrl: '/fundraisers/medical-cover.jpg',
+      coverImageUrl: IMAGES.medical.cover,
       raisedAmount: 3245000,
       goalAmount: 5000000,
     },
     communityId: null,
     community: null,
     content: 'Organized a fundraiser to help Sarah Mitchell with her cancer treatment.',
-    imageUrl: '/fundraisers/medical-cover.jpg',
+    imageUrl: IMAGES.medical.cover,
     donationAmount: null,
     likeCount: 112,
     commentCount: 34,
@@ -414,14 +408,14 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'LA Animal Rescue Fund',
       slug: 'la-animal-rescue-fund',
-      coverImageUrl: '/fundraisers/animal-rescue-cover.jpg',
+      coverImageUrl: IMAGES.animals.cover,
       raisedAmount: 785000,
       goalAmount: 1000000,
     },
     communityId: null,
     community: null,
     content: 'Launched a fund to rescue and care for animals displaced by the LA wildfires.',
-    imageUrl: '/fundraisers/animal-rescue-cover.jpg',
+    imageUrl: IMAGES.animals.cover,
     donationAmount: null,
     likeCount: 45,
     commentCount: 12,
@@ -436,7 +430,7 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'LA Wildfire Alerts & Recovery Fund',
       slug: 'la-wildfire-alerts-and-recovery',
-      coverImageUrl: '/fundraisers/wildfire-cover.jpg',
+      coverImageUrl: IMAGES.wildfire.cover,
       raisedAmount: 210200,
       goalAmount: 300000,
     },
@@ -444,7 +438,7 @@ export const activities: Activity[] = [
     community: {
       name: 'Watch Duty',
       slug: 'watch-duty',
-      iconUrl: '/communities/watch-duty-icon.png',
+      iconUrl: IMAGES.community.icon,
     },
     content:
       'Update: We have crossed $2,000 raised! Thank you all for your incredible generosity. The Watch Duty team has been able to expand alert coverage to three new neighborhoods. Keep sharing!',
@@ -463,7 +457,7 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'LA Animal Rescue Fund',
       slug: 'la-animal-rescue-fund',
-      coverImageUrl: '/fundraisers/animal-rescue-cover.jpg',
+      coverImageUrl: IMAGES.animals.cover,
       raisedAmount: 785000,
       goalAmount: 1000000,
     },
@@ -485,7 +479,7 @@ export const activities: Activity[] = [
     fundraiser: {
       title: 'LA Wildfire Alerts & Recovery Fund',
       slug: 'la-wildfire-alerts-and-recovery',
-      coverImageUrl: '/fundraisers/wildfire-cover.jpg',
+      coverImageUrl: IMAGES.wildfire.cover,
       raisedAmount: 210200,
       goalAmount: 300000,
     },
@@ -493,7 +487,7 @@ export const activities: Activity[] = [
     community: {
       name: 'Watch Duty',
       slug: 'watch-duty',
-      iconUrl: '/communities/watch-duty-icon.png',
+      iconUrl: IMAGES.community.icon,
     },
     content:
       'This is such an important cause. Watch Duty alerts saved my neighbor\'s home last week. Everyone in the LA area should support this.',
@@ -540,7 +534,7 @@ export const leaderboardEntries: LeaderboardEntry[] = [
   {
     rank: 4,
     userId: 'user-1',
-    user: { displayName: 'Janahan Sivaraman', avatarUrl: '/avatars/janahan.jpg' },
+    user: { displayName: 'Janahan Sivaraman', avatarUrl: IMAGES.avatars.janahan },
     fundraiserId: 'fund-1',
     fundraiserTitle: 'LA Wildfire Alerts & Recovery Fund',
     fundraiserSlug: 'la-wildfire-alerts-and-recovery',
@@ -586,7 +580,7 @@ export const highlights: Highlight[] = [
     fundraiser: {
       title: 'LA Wildfire Alerts & Recovery Fund',
       slug: 'la-wildfire-alerts-and-recovery',
-      coverImageUrl: '/fundraisers/wildfire-cover.jpg',
+      coverImageUrl: IMAGES.wildfire.cover,
       raisedAmount: 210200,
       goalAmount: 300000,
       donationCount: 14,
@@ -599,7 +593,7 @@ export const highlights: Highlight[] = [
     fundraiser: {
       title: 'LA Animal Rescue Fund',
       slug: 'la-animal-rescue-fund',
-      coverImageUrl: '/fundraisers/animal-rescue-cover.jpg',
+      coverImageUrl: IMAGES.animals.cover,
       raisedAmount: 785000,
       goalAmount: 1000000,
       donationCount: 62,

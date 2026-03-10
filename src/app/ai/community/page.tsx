@@ -1,346 +1,372 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   communities,
   activities as allActivities,
   fundraisers as allFundraisers,
   users,
+  donations,
 } from '@/lib/data/mock';
-import { formatCurrency, formatNumber } from '@/lib/utils/format';
-import { Sparkles, Users, Shield, BookOpen, ChevronRight, Loader2, TrendingUp, Heart } from 'lucide-react';
+import { formatCurrency, formatNumber, formatRelativeTime } from '@/lib/utils/format';
+import {
+  Heart, Users, TrendingUp, Clock, Filter, ChevronDown, Share2,
+  ArrowUpRight, Target, RefreshCw, MapPin, Flame,
+} from 'lucide-react';
 
 const community = communities[0];
 const communityActivities = allActivities.filter((a) => a.communityId === community.id);
 const communityFundraisers = allFundraisers.filter((f) => f.communityId === community.id);
 
-interface CauseMatch {
-  fundraiserSlug: string;
-  title: string;
-  matchScore: number;
-  reasons: string[];
-}
+// Expanded fundraisers for richer display
+const enrichedFundraisers = allFundraisers.map((f) => {
+  const fundDonations = donations.filter((d) => d.fundraiserId === f.id);
+  const daysOld = Math.floor((Date.now() - new Date(f.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+  const velocity = f.raisedAmount / Math.max(daysOld, 1); // cents/day
+  const pctToGoal = (f.raisedAmount / f.goalAmount) * 100;
+  const isNearGoal = pctToGoal >= 70 && pctToGoal < 100;
+  const isNew = daysOld <= 14;
+  const isUrgent = velocity > 5000 && pctToGoal < 100;
 
-export default function AICommunityPage() {
-  const [digest, setDigest] = useState<string | null>(null);
-  const [digestLoading, setDigestLoading] = useState(false);
-  const [matches, setMatches] = useState<CauseMatch[] | null>(null);
-  const [matchesLoading, setMatchesLoading] = useState(false);
-  const [trustData, setTrustData] = useState<{
-    overallScore: number;
-    label: string;
-    signals: { signal: string; status: string; weight: number }[];
-    recommendation: string;
-  } | null>(null);
-  const [trustLoading, setTrustLoading] = useState(false);
-
-  const runDigest = async () => {
-    setDigestLoading(true);
-    try {
-      const res = await fetch('/api/ai/community-digest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          communityName: community.name,
-          activities: communityActivities.map((a) => ({
-            type: a.type,
-            user: a.user.displayName,
-            content: a.content,
-            amount: a.donationAmount,
-            date: a.createdAt,
-          })),
-          stats: {
-            followers: community.followerCount,
-            totalRaised: community.totalRaised,
-            totalDonations: community.totalDonations,
-            totalFundraisers: community.totalFundraisers,
-            activeFundraisers: communityFundraisers.length,
-          },
-        }),
-      });
-      const { data } = await res.json();
-      setDigest(data.content);
-    } catch {
-      setDigest('Failed to generate digest.');
-    }
-    setDigestLoading(false);
+  return {
+    ...f,
+    donationList: fundDonations,
+    daysOld,
+    velocity,
+    pctToGoal,
+    isNearGoal,
+    isNew,
+    isUrgent,
+    recentDonationCount: fundDonations.filter(
+      (d) => Date.now() - new Date(d.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
+    ).length,
   };
+});
 
-  const runCauseMatching = async () => {
-    setMatchesLoading(true);
-    try {
-      const res = await fetch('/api/ai/cause-matching', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userProfile: {
-            name: users[0].displayName,
-            location: users[0].location,
-            interests: ['emergency', 'animals', 'environment'],
-          },
-          givingHistory: [
-            { category: 'emergency', amount: 30000, count: 3 },
-            { category: 'animals', amount: 10000, count: 1 },
-          ],
-          availableFundraisers: allFundraisers.map((f) => ({
-            slug: f.slug,
-            title: f.title,
-            category: f.category,
-            goalAmount: f.goalAmount,
-            raisedAmount: f.raisedAmount,
-            description: f.description.substring(0, 150),
-          })),
-        }),
-      });
-      const { data } = await res.json();
-      setMatches(data.parsed?.matches || data.parsed);
-    } catch {
-      setMatches(null);
-    }
-    setMatchesLoading(false);
-  };
+type SortOption = 'trending' | 'urgent' | 'near-goal' | 'newest' | 'most-raised';
 
-  const runCommunityTrust = async () => {
-    setTrustLoading(true);
-    try {
-      const res = await fetch('/api/ai/trust-score', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fundraiser: {
-            title: community.name,
-            category: 'community',
-            goalAmount: community.totalRaised,
-            raisedAmount: community.totalRaised,
-            donationCount: community.totalDonations,
-          },
-          organizer: { displayName: community.name, followerCount: community.followerCount },
-          donations: [],
-        }),
+// Milestone
+const milestoneReached = community.totalRaised >= 1_000_00000;
+const milestoneLabel = '$18M+';
+
+// Related communities
+const relatedCommunities = [
+  { name: 'Climate Resilience', members: 12400, slug: '#' },
+  { name: 'Emergency Preparedness', members: 8900, slug: '#' },
+  { name: 'LA Mutual Aid', members: 6200, slug: '#' },
+];
+
+// Recurring giving stat
+const monthlyGivers = 340;
+
+export default function SmartCommunityPage() {
+  const [sortBy, setSortBy] = useState<SortOption>('trending');
+  const [showFilter, setShowFilter] = useState(false);
+  const [pulseItems, setPulseItems] = useState(communityActivities.slice(0, 6));
+
+  // Simulate live pulse updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPulseItems((prev) => {
+        const shuffled = [...communityActivities].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, 6);
       });
-      const { data } = await res.json();
-      setTrustData(data.parsed);
-    } catch {
-      setTrustData(null);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Smart sorted fundraisers
+  const sortedFundraisers = useMemo(() => {
+    const list = [...enrichedFundraisers];
+    switch (sortBy) {
+      case 'trending':
+        return list.sort((a, b) => b.velocity - a.velocity);
+      case 'urgent':
+        return list.sort((a, b) => (b.isUrgent ? 1 : 0) - (a.isUrgent ? 1 : 0) || b.velocity - a.velocity);
+      case 'near-goal':
+        return list.filter((f) => f.pctToGoal >= 50).sort((a, b) => b.pctToGoal - a.pctToGoal);
+      case 'newest':
+        return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case 'most-raised':
+        return list.sort((a, b) => b.raisedAmount - a.raisedAmount);
+      default:
+        return list;
     }
-    setTrustLoading(false);
-  };
+  }, [sortBy]);
+
+  const sortOptions: { value: SortOption; label: string; description: string }[] = [
+    { value: 'trending', label: 'Most active', description: 'Highest donation velocity right now' },
+    { value: 'urgent', label: 'Most urgent', description: 'Need support the most' },
+    { value: 'near-goal', label: 'Nearing their goal', description: 'Almost there — your donation could tip the scale' },
+    { value: 'newest', label: 'New this week', description: 'Recently launched campaigns' },
+    { value: 'most-raised', label: 'Most raised', description: 'Top campaigns by total raised' },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Banner */}
-      <div className="bg-gradient-to-br from-gfm-green/10 via-emerald-50 to-cyan-50 border-b border-gfm-border">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="flex items-center gap-2 text-sm text-gfm-secondary mb-3">
-            <Link href="/communities/watch-duty" className="hover:text-gfm-green transition-colors">
-              {community.name}
-            </Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-gfm-green font-medium">AI-Enhanced View</span>
+      {/* Community Hero */}
+      <div className="relative bg-gradient-to-br from-gfm-dark via-gray-900 to-gray-800 text-white">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+              <Flame className="h-7 w-7 text-orange-400" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">{community.name}</h1>
+              <p className="text-sm text-white/70">{formatNumber(community.followerCount)} members united for wildfire relief</p>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-gfm-dark flex items-center gap-3">
-            <Sparkles className="h-7 w-7 text-gfm-purple" />
-            AI Community Intelligence
-          </h1>
-          <p className="mt-2 text-gfm-secondary max-w-2xl">
-            AI-powered tools that strengthen communities through smart digests, personalized cause matching, and trust monitoring.
-          </p>
 
-          {/* Community Stats */}
-          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Impact Aggregator */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
             {[
-              { label: 'Followers', value: formatNumber(community.followerCount), icon: Users },
-              { label: 'Total Raised', value: formatCurrency(community.totalRaised), icon: TrendingUp },
-              { label: 'Donations', value: formatNumber(community.totalDonations), icon: Heart },
-              { label: 'Fundraisers', value: formatNumber(community.totalFundraisers), icon: BookOpen },
+              { value: formatCurrency(community.totalRaised), label: 'Raised together', emphasis: true },
+              { value: formatNumber(community.totalDonations), label: 'Donations made' },
+              { value: formatNumber(community.totalFundraisers), label: 'Campaigns supported' },
+              { value: '830+', label: 'Families helped' },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-xl bg-white/80 backdrop-blur-sm border border-gfm-border/50 p-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <stat.icon className="h-4 w-4 text-gfm-green" />
-                  <span className="text-xs text-gfm-secondary">{stat.label}</span>
+              <div key={stat.label} className="rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 p-4">
+                <div className={`text-xl md:text-2xl font-bold ${stat.emphasis ? 'text-gfm-green' : 'text-white'}`}>
+                  {stat.value}
                 </div>
-                <div className="text-lg font-bold text-gfm-dark">{stat.value}</div>
+                <div className="text-xs text-white/60 mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* AI Features */}
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* AI Community Digest - Full Width */}
-          <div className="lg:col-span-2 rounded-xl border border-gfm-border bg-white overflow-hidden">
-            <div className="bg-gradient-to-r from-gfm-purple/10 to-gfm-pink/10 px-6 py-4 border-b border-gfm-border">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-gfm-purple" />
-                  <h3 className="font-bold text-gfm-dark">AI Community Digest</h3>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
+            {/* Milestone Celebration */}
+            {milestoneReached && (
+              <div className="rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-gfm-green/20 p-5 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gfm-green/10 flex items-center justify-center">
+                    <Target className="h-6 w-6 text-gfm-green" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gfm-dark">This community just crossed {milestoneLabel} raised</h3>
+                    <p className="text-xs text-gfm-secondary mt-0.5">
+                      {formatNumber(community.followerCount)} people came together to make this happen. Share this milestone to inspire more.
+                    </p>
+                  </div>
+                  <button className="rounded-full bg-gfm-green px-4 py-2 text-xs font-semibold text-white hover:bg-gfm-dark-green transition-colors flex items-center gap-1.5">
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
+                  </button>
                 </div>
+              </div>
+            )}
+
+            {/* Campaign Discovery */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gfm-dark">Campaigns</h2>
                 <button
-                  onClick={runDigest}
-                  disabled={digestLoading}
-                  className="rounded-full bg-gfm-purple px-4 py-1.5 text-xs font-semibold text-white hover:bg-gfm-purple/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="flex items-center gap-1.5 text-sm text-gfm-secondary hover:text-gfm-dark transition-colors"
                 >
-                  {digestLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                  {digestLoading ? 'Generating...' : 'Generate Digest'}
+                  <Filter className="h-4 w-4" />
+                  {sortOptions.find((s) => s.value === sortBy)?.label}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showFilter ? 'rotate-180' : ''}`} />
                 </button>
               </div>
-              <p className="text-xs text-gfm-secondary mt-1">AI-generated weekly summary of community activity, trends, and highlights</p>
-            </div>
-            <div className="p-6 min-h-[300px]">
-              {digest ? (
-                <div className="prose prose-sm max-w-none text-gfm-dark">
-                  {digest.split('\n').map((line, i) => {
-                    if (line.startsWith('##')) return <h3 key={i} className="text-lg font-bold text-gfm-dark mt-4 mb-2">{line.replace(/^#+\s*/, '')}</h3>;
-                    if (line.startsWith('**') && line.includes(':')) {
-                      const [label, ...rest] = line.split(':');
-                      return <p key={i} className="mb-1"><strong className="text-gfm-dark">{label.replace(/\*\*/g, '')}:</strong><span className="text-gfm-secondary">{rest.join(':')}</span></p>;
-                    }
-                    if (line.startsWith('-')) return <p key={i} className="ml-4 mb-1 text-sm text-gfm-secondary">{line}</p>;
-                    return line.trim() ? <p key={i} className="mb-2 text-sm text-gfm-secondary">{line}</p> : <br key={i} />;
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                  <BookOpen className="h-12 w-12 text-gfm-border mb-3" />
-                  <p className="text-sm text-gfm-secondary">Generate an AI-powered weekly digest summarizing all community activity</p>
-                  <p className="text-xs text-gfm-secondary mt-1">Includes highlights, trending causes, and community health metrics</p>
+
+              {showFilter && (
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4 animate-in slide-in-from-top-2 duration-200">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => { setSortBy(option.value); setShowFilter(false); }}
+                      className={`rounded-lg border p-2.5 text-left transition-all ${
+                        sortBy === option.value ? 'border-gfm-green bg-green-50' : 'border-gfm-border hover:border-gfm-green/30'
+                      }`}
+                    >
+                      <div className="text-xs font-medium text-gfm-dark">{option.label}</div>
+                      <div className="text-[10px] text-gfm-secondary mt-0.5">{option.description}</div>
+                    </button>
+                  ))}
                 </div>
               )}
-            </div>
-          </div>
 
-          {/* Community Trust Score */}
-          <div className="rounded-xl border border-gfm-border bg-white overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gfm-border">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-gfm-green" />
-                  <h3 className="font-bold text-gfm-dark">Community Trust</h3>
-                </div>
-                <button
-                  onClick={runCommunityTrust}
-                  disabled={trustLoading}
-                  className="rounded-full bg-gfm-green px-4 py-1.5 text-xs font-semibold text-white hover:bg-gfm-dark-green transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {trustLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Shield className="h-3 w-3" />}
-                  {trustLoading ? 'Checking...' : 'Check Trust'}
-                </button>
-              </div>
-            </div>
-            <div className="p-6 min-h-[260px]">
-              {trustData ? (
-                <div>
-                  <div className="text-center mb-4">
-                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${
-                      trustData.overallScore >= 80 ? 'bg-green-100' : 'bg-yellow-100'
-                    }`}>
-                      <span className={`text-2xl font-bold ${
-                        trustData.overallScore >= 80 ? 'text-gfm-green' : 'text-yellow-600'
-                      }`}>{trustData.overallScore}</span>
-                    </div>
-                    <div className="font-bold text-gfm-dark mt-2">{trustData.label}</div>
-                  </div>
-                  <div className="space-y-2">
-                    {trustData.signals.map((s, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <div className={`w-1.5 h-1.5 rounded-full ${s.status === 'pass' ? 'bg-gfm-green' : 'bg-yellow-400'}`} />
-                        <span className="text-gfm-secondary">{s.signal}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center py-8">
-                  <Shield className="h-10 w-10 text-gfm-border mb-3" />
-                  <p className="text-xs text-gfm-secondary">Evaluate community trust signals</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Smart Cause Matching */}
-        <div className="mt-6 rounded-xl border border-gfm-border bg-white overflow-hidden">
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-gfm-border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-amber-600" />
-                <h3 className="font-bold text-gfm-dark">Smart Cause Matching</h3>
-              </div>
-              <button
-                onClick={runCauseMatching}
-                disabled={matchesLoading}
-                className="rounded-full bg-amber-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-              >
-                {matchesLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Heart className="h-3 w-3" />}
-                {matchesLoading ? 'Matching...' : 'Find My Causes'}
-              </button>
-            </div>
-            <p className="text-xs text-gfm-secondary mt-1">AI matches you with fundraisers based on your giving history, interests, and community connections</p>
-          </div>
-          <div className="p-6">
-            {matches ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {matches.map((match, i) => (
+              {/* Campaign Cards */}
+              <div className="space-y-4">
+                {sortedFundraisers.map((fund) => (
                   <Link
-                    key={i}
-                    href={`/f/${match.fundraiserSlug}`}
-                    className="rounded-lg border border-gfm-border p-4 hover:border-amber-300 hover:shadow-md transition-all group"
+                    key={fund.id}
+                    href={`/f/${fund.slug}`}
+                    className="flex gap-4 rounded-xl border border-gfm-border p-4 hover:border-gfm-green/30 hover:shadow-sm transition-all group"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-amber-600">#{i + 1} Match</span>
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700">
-                        {match.matchScore}%
-                      </span>
+                    <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                      <img src={fund.coverImageUrl} alt={fund.title} className="w-full h-full object-cover" />
                     </div>
-                    <h4 className="font-bold text-gfm-dark text-sm group-hover:text-gfm-green transition-colors">{match.title}</h4>
-                    <div className="mt-2 space-y-1">
-                      {match.reasons.map((r, j) => (
-                        <p key={j} className="text-xs text-gfm-secondary flex items-start gap-1">
-                          <span className="text-amber-400 mt-0.5">&#8226;</span>
-                          {r}
-                        </p>
-                      ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        {fund.isUrgent && (
+                          <span className="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-[10px] font-semibold">Most urgent</span>
+                        )}
+                        {fund.isNearGoal && (
+                          <span className="rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-[10px] font-semibold">Almost there</span>
+                        )}
+                        {fund.isNew && (
+                          <span className="rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[10px] font-semibold">New</span>
+                        )}
+                      </div>
+                      <h3 className="text-sm font-bold text-gfm-dark group-hover:text-gfm-green transition-colors truncate">
+                        {fund.title}
+                      </h3>
+                      <p className="text-xs text-gfm-secondary mt-0.5 line-clamp-1">
+                        by {fund.organizer.displayName}
+                      </p>
+                      <div className="mt-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="flex-1 h-1.5 bg-gfm-bg rounded-full overflow-hidden">
+                            <div className="h-full bg-gfm-green rounded-full" style={{ width: `${Math.min(100, fund.pctToGoal)}%` }} />
+                          </div>
+                          <span className="text-xs font-medium text-gfm-dark">{Math.round(fund.pctToGoal)}%</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] text-gfm-secondary">
+                          <span>{formatCurrency(fund.raisedAmount)} raised</span>
+                          <span>{fund.donationCount} donors</span>
+                          {fund.recentDonationCount > 0 && (
+                            <span className="text-gfm-green">{fund.recentDonationCount} this week</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    <ArrowUpRight className="h-4 w-4 text-gfm-secondary group-hover:text-gfm-green transition-colors flex-shrink-0 mt-1" />
                   </Link>
                 ))}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center py-8">
-                <Heart className="h-10 w-10 text-gfm-border mb-3" />
-                <p className="text-sm text-gfm-secondary">Find fundraisers in this community that match your interests and giving style</p>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="w-full lg:w-80 flex-shrink-0 space-y-5">
+            {/* Cause Pulse - Live Feed */}
+            <div className="rounded-xl border border-gfm-border overflow-hidden">
+              <div className="px-4 py-3 border-b border-gfm-border bg-gfm-bg/50 flex items-center justify-between">
+                <h3 className="text-sm font-bold text-gfm-dark flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-gfm-green animate-pulse" />
+                  Live activity
+                </h3>
+                <RefreshCw className="h-3.5 w-3.5 text-gfm-secondary" />
+              </div>
+              <div className="divide-y divide-gfm-border">
+                {pulseItems.slice(0, 5).map((activity) => (
+                  <div key={activity.id} className="px-4 py-3 hover:bg-gfm-bg/30 transition-colors">
+                    <div className="flex items-start gap-2.5">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        activity.type === 'donation' ? 'bg-green-100' : activity.type === 'fundraiser_created' ? 'bg-blue-100' : 'bg-gray-100'
+                      }`}>
+                        {activity.type === 'donation' ? (
+                          <Heart className="h-3 w-3 text-gfm-green" />
+                        ) : (
+                          <TrendingUp className="h-3 w-3 text-blue-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gfm-dark">
+                          <strong>{activity.user.displayName}</strong>
+                          {activity.type === 'donation' && activity.donationAmount
+                            ? ` donated ${formatCurrency(activity.donationAmount)}`
+                            : activity.type === 'fundraiser_created'
+                            ? ' created a campaign'
+                            : ' posted an update'}
+                        </p>
+                        <p className="text-[10px] text-gfm-secondary truncate mt-0.5">
+                          {activity.fundraiser?.title}
+                        </p>
+                        <span className="text-[10px] text-gfm-secondary">
+                          {formatRelativeTime(new Date(activity.createdAt))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Story Spotlight */}
+            {communityActivities.filter((a) => a.content && a.type === 'fundraiser_update').length > 0 && (
+              <div className="rounded-xl border border-gfm-border p-4">
+                <h3 className="text-xs font-semibold text-gfm-secondary uppercase tracking-wide mb-3">Community highlight</h3>
+                {(() => {
+                  const spotlight = communityActivities.find((a) => a.type === 'fundraiser_update' && a.content);
+                  if (!spotlight) return null;
+                  return (
+                    <div>
+                      <p className="text-sm text-gfm-dark leading-relaxed line-clamp-4">{spotlight.content}</p>
+                      <div className="flex items-center gap-2 mt-3">
+                        <div className="w-6 h-6 rounded-full bg-gfm-bg flex items-center justify-center text-[10px] font-bold text-gfm-secondary">
+                          {spotlight.user.displayName.charAt(0)}
+                        </div>
+                        <span className="text-xs text-gfm-secondary">{spotlight.user.displayName}</span>
+                        <span className="text-xs text-gfm-secondary">&middot;</span>
+                        <span className="text-xs text-gfm-secondary">{spotlight.likeCount} likes</span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Instrumentation Note */}
-        <div className="mt-8 rounded-xl border border-dashed border-gfm-border bg-gfm-bg/50 p-6">
-          <h3 className="font-bold text-gfm-dark mb-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-gfm-green animate-pulse" />
-            Instrumentation & Metrics
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gfm-secondary">
-            <div>
-              <strong className="text-gfm-dark">What we track:</strong>
-              <ul className="mt-1 space-y-1 list-disc list-inside">
-                <li>Digest open rates and read-through time</li>
-                <li>Cause match click-through to donation completion</li>
-                <li>Community trust score changes over time</li>
-                <li>New member acquisition from AI recommendations</li>
-              </ul>
+            {/* Recurring Giving Nudge */}
+            <div className="rounded-xl bg-gradient-to-br from-gfm-green/5 to-emerald-50 border border-gfm-green/10 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <RefreshCw className="h-4 w-4 text-gfm-green" />
+                <h3 className="text-sm font-bold text-gfm-dark">Give monthly</h3>
+              </div>
+              <p className="text-xs text-gfm-secondary leading-relaxed">
+                Wildfires happen every year. <strong className="text-gfm-dark">{monthlyGivers} people</strong> in this community give monthly to stay ready. Recurring giving ensures communities are prepared before disaster strikes.
+              </p>
+              <button className="mt-3 w-full rounded-full bg-gfm-green py-2 text-xs font-semibold text-white hover:bg-gfm-dark-green transition-colors">
+                Set up monthly giving
+              </button>
             </div>
-            <div>
-              <strong className="text-gfm-dark">Why we track it:</strong>
-              <ul className="mt-1 space-y-1 list-disc list-inside">
-                <li>Measure engagement lift from AI digests</li>
-                <li>Validate matching algorithm quality via conversions</li>
-                <li>Detect emerging trust issues early</li>
-                <li>Optimize AI costs vs. community growth ROI</li>
-              </ul>
+
+            {/* Related Communities */}
+            <div className="rounded-xl border border-gfm-border p-4">
+              <h3 className="text-xs font-semibold text-gfm-secondary uppercase tracking-wide mb-3">People also support</h3>
+              <div className="space-y-3">
+                {relatedCommunities.map((rc) => (
+                  <div key={rc.name} className="flex items-center gap-3 group cursor-pointer">
+                    <div className="w-9 h-9 rounded-lg bg-gfm-bg flex items-center justify-center">
+                      <Users className="h-4 w-4 text-gfm-secondary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-gfm-dark group-hover:text-gfm-green transition-colors">{rc.name}</span>
+                      <span className="text-xs text-gfm-secondary block">{formatNumber(rc.members)} members</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="rounded-xl border border-gfm-border p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="h-4 w-4 text-gfm-secondary" />
+                <h3 className="text-sm font-bold text-gfm-dark">Near you</h3>
+              </div>
+              <p className="text-xs text-gfm-secondary">
+                Showing campaigns relevant to <strong className="text-gfm-dark">Los Angeles, CA</strong>. Community members in your area are most active in emergency relief and animal rescue.
+              </p>
+            </div>
+
+            {/* About */}
+            <div className="rounded-xl border border-gfm-border p-4">
+              <h3 className="text-sm font-bold text-gfm-dark mb-2">About</h3>
+              <p className="text-xs text-gfm-secondary leading-relaxed">{community.description}</p>
+              <p className="text-[10px] text-gfm-secondary mt-3">
+                <Clock className="h-3 w-3 inline mr-1" />
+                Created {new Date(community.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </p>
             </div>
           </div>
         </div>
