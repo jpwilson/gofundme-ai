@@ -6,21 +6,21 @@
 export const IMAGES = {
   // Fundraiser cover images
   wildfire: {
-    cover: 'https://images.unsplash.com/photo-1621800790527-13e7d56f8beb?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1634009653379-a97409ee15de?w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?w=600&q=80',
-      'https://images.unsplash.com/photo-1602615576820-ea14cf3e476a?w=600&q=80',
-      'https://images.unsplash.com/photo-1516901408338-4f5f8b82e64c?w=600&q=80',
+      'https://images.unsplash.com/photo-1507680465142-ef2223e23308?w=600&q=80',
+      'https://images.unsplash.com/photo-1764639568076-045ee723cfa4?w=600&q=80',
+      'https://images.unsplash.com/photo-1736217044407-822311e9c226?w=600&q=80',
     ],
   },
   medical: {
-    cover: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1633488781325-d36e6818d0c8?w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&q=80',
+      'https://images.unsplash.com/photo-1613377512409-59c33c10c821?w=600&q=80',
     ],
   },
   animals: {
-    cover: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&q=80',
+    cover: 'https://images.unsplash.com/photo-1593991910379-b414c1e3bd74?w=800&q=80',
     gallery: [
       'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&q=80',
       'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&q=80',
@@ -29,8 +29,8 @@ export const IMAGES = {
 
   // Community images
   community: {
-    banner: 'https://images.unsplash.com/photo-1473773508845-188df298d2d1?w=1200&q=80',
-    icon: 'https://images.unsplash.com/photo-1542601098-3adb3baeb1ec?w=100&q=80',
+    banner: 'https://images.unsplash.com/photo-1758599667717-27c61bcdd14b?w=1200&q=80',
+    icon: 'https://images.unsplash.com/photo-1655720359248-eeace8c709c5?w=100&q=80',
   },
 
   // User avatars
