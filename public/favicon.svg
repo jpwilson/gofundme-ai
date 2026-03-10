@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#1a1a1a"/>
+  <g transform="translate(6, 7)" fill="#b8e986">
+    <!-- Crown/heart shape -->
+    <circle cx="3" cy="6" r="2.5"/>
+    <circle cx="10" cy="2" r="2.5"/>
+    <circle cx="17" cy="6" r="2.5"/>
+    <path d="M3 8 L10 18 L17 8 Z" fill="#b8e986"/>
+    <!-- Smile -->
+    <rect x="7" y="13" width="6" height="1.5" rx="0.75" fill="#1a1a1a"/>
+  </g>
+</svg>

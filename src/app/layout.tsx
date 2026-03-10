@@ -10,8 +10,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "GoFundMe Clone",
-  description: "A GoFundMe clone built with Next.js",
+  title: "GoFundMe — AI-Accelerated",
+  description: "GoFundMe Profile, Fundraiser, and Community Pages with AI-powered features",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
