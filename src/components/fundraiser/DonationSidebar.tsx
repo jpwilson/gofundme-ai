@@ -43,7 +43,7 @@ export function DonationSidebar({
   return (
     <div className="sticky top-20 space-y-4">
       {/* Green CTA banner */}
-      <div className="rounded-xl bg-gfm-green px-5 py-4">
+      <div className="rounded-xl bg-gfm-green px-5 py-2.5">
         <p className="text-sm font-semibold text-white text-center leading-snug">
           Help {organizerFirstName} climb the leaderboard, donate today!
         </p>
@@ -82,13 +82,13 @@ export function DonationSidebar({
         </div>
 
         {/* Action buttons */}
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <Link href={`/f/${fundraiser.slug}/donate`}>
-            <Button variant="primary" size="lg" fullWidth>
+            <Button variant="primary" size="md" fullWidth>
               Donate now
             </Button>
           </Link>
-          <Button variant="secondary" size="lg" fullWidth>
+          <Button variant="outline" size="md" fullWidth>
             Share
           </Button>
         </div>

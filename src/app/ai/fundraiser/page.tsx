@@ -357,11 +357,11 @@ export default function SmartFundraiserPage() {
                 ))}
               </div>
 
-              <button className="w-full rounded-full bg-gfm-green py-3 text-sm font-bold text-white hover:bg-gfm-dark-green transition-colors">
+              <button className="w-full rounded-full bg-gfm-green py-2 text-sm font-bold text-white hover:bg-gfm-dark-green transition-colors">
                 Donate {formatCurrency(selectedAmount)}
               </button>
 
-              <button className="w-full mt-2 rounded-full border-2 border-gfm-border py-2.5 text-sm font-medium text-gfm-dark hover:border-gfm-green hover:text-gfm-green transition-colors flex items-center justify-center gap-2">
+              <button className="w-full mt-2 rounded-full border-2 border-gfm-green py-1.5 text-sm font-medium text-gfm-green hover:bg-gfm-green hover:text-white transition-colors flex items-center justify-center gap-2">
                 <Share2 className="h-4 w-4" />
                 Share
               </button>

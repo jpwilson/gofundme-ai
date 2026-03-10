@@ -145,7 +145,7 @@ export default function GivingAgentPage() {
 
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/giving-agent/setup">
-                <button className="group relative rounded-full bg-white px-8 py-4 text-base font-bold text-[var(--gfm-dark-green)] shadow-xl shadow-black/15 transition-all duration-300 hover:shadow-2xl hover:shadow-black/20 hover:-translate-y-0.5">
+                <button className="group relative rounded-full bg-white px-8 py-2.5 text-base font-bold text-[var(--gfm-dark-green)] shadow-xl shadow-black/15 transition-all duration-300 hover:shadow-2xl hover:shadow-black/20 hover:-translate-y-0.5">
                   <span className="flex items-center gap-2">
                     Get Started
                     <svg className="h-5 w-5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
