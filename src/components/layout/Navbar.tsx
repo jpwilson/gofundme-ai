@@ -107,6 +107,13 @@ export function Navbar() {
     { label: "Contact us", href: "/contact" },
   ];
 
+  const aiIdeationItems = [
+    { label: "AI Fundraiser", href: "/ai/fundraiser", description: "Story coach, sentiment & trust AI" },
+    { label: "AI Community", href: "/ai/community", description: "Smart digests & cause matching" },
+    { label: "AI Profile", href: "/ai/profile", description: "Giving insights & recommendations" },
+    { label: "AI Analytics", href: "/ai/analytics", description: "Costs, scale & observability" },
+  ];
+
   const ideationItems = [
     { label: "Fundraiser Page", href: "/f/la-wildfire-alerts-and-recovery", description: "Campaign detail & donation flow" },
     { label: "Community Page", href: "/communities/watch-duty", description: "Community hub & leaderboard" },
@@ -166,6 +173,7 @@ export function Navbar() {
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
             <NavDropdown label="About" items={aboutItems} />
+            <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} />
             <NavDropdown label="Ideation" badge="JP" items={ideationItems} />
           </div>
           <button
@@ -201,6 +209,7 @@ export function Navbar() {
               items={givingFundsItems}
             />
             <MobileSection title="About" items={aboutItems} />
+            <MobileSection title="AI Ideation" badge="JP" items={aiIdeationItems} />
             <MobileSection title="Ideation" badge="JP" items={ideationItems} />
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
               <Link
