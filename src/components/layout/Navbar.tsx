@@ -107,6 +107,13 @@ export function Navbar() {
     { label: "Contact us", href: "/contact" },
   ];
 
+  const ai2IdeationItems = [
+    { label: "Fraud Detection", href: "/ai2/fraud-detection", description: "Anomaly detection & trust scores" },
+    { label: "Jira Agent", href: "/ai2/jira-agent", description: "AI-powered engineering workflows" },
+    { label: "Persona Recommendations", href: "/ai2/persona-recommendations", description: "Social media donor targeting" },
+    { label: "Agent Observability", href: "/ai2/agent-observability", description: "Agent behavior tracking & traces" },
+  ];
+
   const aiIdeationItems = [
     { label: "AI Fundraiser", href: "/ai/fundraiser", description: "Story coach, sentiment & trust AI" },
     { label: "AI Community", href: "/ai/community", description: "Smart digests & cause matching" },
@@ -173,6 +180,7 @@ export function Navbar() {
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
             <NavDropdown label="About" items={aboutItems} />
+            <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} />
             <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} />
             <NavDropdown label="Ideation" badge="JP" items={ideationItems} />
           </div>
@@ -209,6 +217,7 @@ export function Navbar() {
               items={givingFundsItems}
             />
             <MobileSection title="About" items={aboutItems} />
+            <MobileSection title="AI Ideation2" badge="JP" items={ai2IdeationItems} />
             <MobileSection title="AI Ideation" badge="JP" items={aiIdeationItems} />
             <MobileSection title="Ideation" badge="JP" items={ideationItems} />
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
