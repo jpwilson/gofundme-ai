@@ -17,7 +17,7 @@ function getProvider(): AIProvider {
       if (anthropic.isConfigured()) {
         _provider = anthropic;
       } else {
-        console.warn('[AI] Anthropic API key not found, falling back to mock provider');
+        console.warn('[AI] No API key found (checked OPENROUTER_API_KEY and ANTHROPIC_API_KEY), falling back to mock provider');
         _provider = new MockAIProvider();
       }
       break;

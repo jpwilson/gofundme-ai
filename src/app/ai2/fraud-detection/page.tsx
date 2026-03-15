@@ -15,6 +15,10 @@ import {
   ToggleRight,
   Activity,
   Radio,
+  Loader2,
+  X,
+  Check,
+  AlertCircle,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -210,6 +214,53 @@ export default function FraudDetectionPage() {
     Object.fromEntries(DETECTION_RULES.map((r) => [r.id, r.enabled])),
   );
   const [feed, setFeed] = useState(MONITORING_FEED);
+  const [reviewResults, setReviewResults] = useState<Record<string, { loading: boolean; data: any | null }>>({});
+
+  const handleReview = async (fundraiserId: string) => {
+    const f = FLAGGED_FUNDRAISERS.find((item) => item.id === fundraiserId);
+    if (!f) return;
+
+    setReviewResults((prev) => ({
+      ...prev,
+      [fundraiserId]: { loading: true, data: null },
+    }));
+
+    try {
+      const res = await fetch('/api/ai/trust-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fundraiser: {
+            title: f.title,
+            raisedAmount: f.raisedAmount,
+            flagType: f.flagType,
+            riskLevel: f.riskLevel,
+            details: f.details,
+            flaggedAt: f.flaggedAt,
+          },
+          organizer: {
+            name: f.organizer,
+          },
+          donations: [
+            { amount: Math.round(f.raisedAmount * 0.4), donor: 'Anonymous', timestamp: f.flaggedAt },
+            { amount: Math.round(f.raisedAmount * 0.35), donor: 'Anonymous', timestamp: f.flaggedAt },
+            { amount: Math.round(f.raisedAmount * 0.25), donor: 'Anonymous', timestamp: f.flaggedAt },
+          ],
+        }),
+      });
+
+      const json = await res.json();
+      setReviewResults((prev) => ({
+        ...prev,
+        [fundraiserId]: { loading: false, data: json?.data?.parsed ?? null },
+      }));
+    } catch {
+      setReviewResults((prev) => ({
+        ...prev,
+        [fundraiserId]: { loading: false, data: null },
+      }));
+    }
+  };
 
   // Live feed simulation
   useEffect(() => {
@@ -361,8 +412,16 @@ export default function FraudDetectionPage() {
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
-                <button className="flex items-center gap-1 rounded-lg bg-gfm-green px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90">
-                  <Eye size={14} /> Review
+                <button
+                  onClick={() => handleReview(f.id)}
+                  disabled={reviewResults[f.id]?.loading}
+                  className="flex items-center gap-1 rounded-lg bg-gfm-green px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-60"
+                >
+                  {reviewResults[f.id]?.loading ? (
+                    <><Loader2 size={14} className="animate-spin" /> Analyzing...</>
+                  ) : (
+                    <><Eye size={14} /> Review</>
+                  )}
                 </button>
                 <button className="flex items-center gap-1 rounded-lg border border-gfm-border px-4 py-2 text-sm font-medium text-gfm-secondary transition-colors hover:bg-gfm-bg">
                   <XCircle size={14} /> Dismiss
@@ -371,6 +430,82 @@ export default function FraudDetectionPage() {
                   <ArrowUp size={14} /> Escalate
                 </button>
               </div>
+
+              {/* AI Review Expanded Panel */}
+              {reviewResults[f.id]?.data && (
+                <div className="mt-4 animate-in slide-in-from-top-2 border-t border-gfm-border bg-gfm-bg/50 rounded-b-xl p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-gfm-dark">AI Deep Analysis</h4>
+                    <button
+                      onClick={() =>
+                        setReviewResults((prev) => {
+                          const next = { ...prev };
+                          delete next[f.id];
+                          return next;
+                        })
+                      }
+                      className="rounded p-1 text-gfm-secondary hover:bg-gfm-bg hover:text-gfm-dark"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Score + Label */}
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold ${trustBg(reviewResults[f.id].data.overallScore)}`}
+                    >
+                      {reviewResults[f.id].data.overallScore}
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-gfm-dark">{reviewResults[f.id].data.label}</p>
+                      <p className="text-xs text-gfm-secondary">AI Trust Score</p>
+                    </div>
+                  </div>
+
+                  {/* Trust Signals */}
+                  {reviewResults[f.id].data.signals?.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gfm-secondary">Trust Signals</p>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {reviewResults[f.id].data.signals.map((s: any, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2 rounded-lg border border-gfm-border bg-white px-3 py-2">
+                            {s.status === 'pass' || s.status === 'positive' ? (
+                              <CheckCircle2 size={16} className="flex-shrink-0 text-green-500" />
+                            ) : s.status === 'fail' || s.status === 'negative' ? (
+                              <XCircle size={16} className="flex-shrink-0 text-red-500" />
+                            ) : (
+                              <AlertCircle size={16} className="flex-shrink-0 text-amber-500" />
+                            )}
+                            <span className="flex-1 text-sm text-gfm-dark">{s.signal}</span>
+                            <span className="text-xs text-gfm-secondary">{s.weight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Risk Factors */}
+                  {reviewResults[f.id].data.riskFactors?.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gfm-secondary">Risk Factors</p>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {reviewResults[f.id].data.riskFactors.map((risk: string, idx: number) => (
+                          <li key={idx} className="text-sm text-gfm-dark">{risk}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Recommendation */}
+                  {reviewResults[f.id].data.recommendation && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-700">Recommendation</p>
+                      <p className="text-sm text-amber-900">{reviewResults[f.id].data.recommendation}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -12,7 +12,7 @@ import {
 import { formatCurrency, formatNumber, formatRelativeTime } from '@/lib/utils/format';
 import {
   Heart, Users, TrendingUp, Clock, Filter, ChevronDown, Share2,
-  ArrowUpRight, Target, RefreshCw, MapPin, Flame,
+  ArrowUpRight, Target, RefreshCw, MapPin, Flame, Sparkles,
 } from 'lucide-react';
 
 const community = communities[0];
@@ -64,6 +64,35 @@ export default function SmartCommunityPage() {
   const [sortBy, setSortBy] = useState<SortOption>('trending');
   const [showFilter, setShowFilter] = useState(false);
   const [pulseItems, setPulseItems] = useState(communityActivities.slice(0, 6));
+  const [digest, setDigest] = useState<{ loading: boolean; data: string | null; error: boolean }>({ loading: true, data: null, error: false });
+
+  // Fetch AI-generated community digest
+  useEffect(() => {
+    fetch('/api/ai/community-digest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        communityName: community.name,
+        activities: communityActivities.slice(0, 15),
+        stats: {
+          totalRaised: community.totalRaised,
+          totalDonations: community.totalDonations,
+          totalFundraisers: community.totalFundraisers,
+          followerCount: community.followerCount,
+        },
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch digest');
+        return res.json();
+      })
+      .then((json) => {
+        setDigest({ loading: false, data: json.data.content, error: false });
+      })
+      .catch(() => {
+        setDigest({ loading: false, data: null, error: true });
+      });
+  }, []);
 
   // Simulate live pulse updates
   useEffect(() => {
@@ -292,29 +321,65 @@ export default function SmartCommunityPage() {
               </div>
             </div>
 
-            {/* Story Spotlight */}
-            {communityActivities.filter((a) => a.content && a.type === 'fundraiser_update').length > 0 && (
-              <div className="rounded-xl border border-gfm-border p-4">
-                <h3 className="text-xs font-semibold text-gfm-secondary uppercase tracking-wide mb-3">Community highlight</h3>
-                {(() => {
-                  const spotlight = communityActivities.find((a) => a.type === 'fundraiser_update' && a.content);
-                  if (!spotlight) return null;
-                  return (
-                    <div>
-                      <p className="text-sm text-gfm-dark leading-relaxed line-clamp-4">{spotlight.content}</p>
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="w-6 h-6 rounded-full bg-gfm-bg flex items-center justify-center text-[10px] font-bold text-gfm-secondary">
-                          {spotlight.user.displayName.charAt(0)}
+            {/* Weekly Digest */}
+            <div className="rounded-xl border border-transparent bg-gradient-to-br from-purple-50 via-white to-blue-50 p-[1px]">
+              <div className="rounded-[11px] bg-white p-4" style={{ background: 'linear-gradient(135deg, rgba(245,243,255,0.6) 0%, rgba(255,255,255,1) 40%, rgba(239,246,255,0.6) 100%)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-semibold text-gfm-dark uppercase tracking-wide flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-purple-500" />
+                    Weekly Digest
+                  </h3>
+                  <span className="rounded-full bg-purple-100 text-purple-700 px-2 py-0.5 text-[10px] font-semibold">AI-powered</span>
+                </div>
+                {digest.loading && (
+                  <div className="space-y-2.5 animate-pulse">
+                    <div className="h-3 bg-gray-200 rounded-full w-full" />
+                    <div className="h-3 bg-gray-200 rounded-full w-5/6" />
+                    <div className="h-3 bg-gray-200 rounded-full w-4/6" />
+                    <div className="h-3 bg-gray-200 rounded-full w-3/4" />
+                  </div>
+                )}
+                {!digest.loading && digest.data && (
+                  <div className="text-xs text-gfm-dark leading-relaxed whitespace-pre-line">
+                    {digest.data.split('\n').map((line, i) => {
+                      const trimmed = line.trim();
+                      if (!trimmed) return <br key={i} />;
+                      if (trimmed.startsWith('###')) return <p key={i} className="font-bold text-gfm-dark mt-2 mb-1 text-xs">{trimmed.replace(/^###\s*/, '')}</p>;
+                      if (trimmed.startsWith('##')) return <p key={i} className="font-bold text-gfm-dark mt-2 mb-1 text-sm">{trimmed.replace(/^##\s*/, '')}</p>;
+                      if (trimmed.startsWith('#')) return <p key={i} className="font-bold text-gfm-dark mt-2 mb-1 text-sm">{trimmed.replace(/^#\s*/, '')}</p>;
+                      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) return (
+                        <div key={i} className="flex gap-1.5 ml-1 my-0.5">
+                          <span className="text-gfm-green mt-px">&#8226;</span>
+                          <span>{trimmed.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1')}</span>
                         </div>
-                        <span className="text-xs text-gfm-secondary">{spotlight.user.displayName}</span>
-                        <span className="text-xs text-gfm-secondary">&middot;</span>
-                        <span className="text-xs text-gfm-secondary">{spotlight.likeCount} likes</span>
-                      </div>
-                    </div>
-                  );
-                })()}
+                      );
+                      return <p key={i} className="my-0.5">{trimmed.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
+                    })}
+                  </div>
+                )}
+                {!digest.loading && digest.error && (
+                  <>
+                    {(() => {
+                      const spotlight = communityActivities.find((a) => a.type === 'fundraiser_update' && a.content);
+                      if (!spotlight) return null;
+                      return (
+                        <div>
+                          <p className="text-sm text-gfm-dark leading-relaxed line-clamp-4">{spotlight.content}</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            <div className="w-6 h-6 rounded-full bg-gfm-bg flex items-center justify-center text-[10px] font-bold text-gfm-secondary">
+                              {spotlight.user.displayName.charAt(0)}
+                            </div>
+                            <span className="text-xs text-gfm-secondary">{spotlight.user.displayName}</span>
+                            <span className="text-xs text-gfm-secondary">&middot;</span>
+                            <span className="text-xs text-gfm-secondary">{spotlight.likeCount} likes</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Recurring Giving Nudge */}
             <div className="rounded-xl bg-gradient-to-br from-gfm-green/5 to-emerald-50 border border-gfm-green/10 p-4">

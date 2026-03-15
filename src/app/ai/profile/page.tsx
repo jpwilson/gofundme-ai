@@ -80,10 +80,53 @@ const networkDonors: { name: string; sharedCauses: number; avatar: string | null
 
 export default function SmartProfilePage() {
   const [animated, setAnimated] = useState(false);
+  const [aiPersonality, setAiPersonality] = useState<{ loading: boolean; data: any | null }>({ loading: true, data: null });
+  const [aiNarrative, setAiNarrative] = useState<{ loading: boolean; data: string | null }>({ loading: true, data: null });
+  const [aiRecommendations, setAiRecommendations] = useState<{ loading: boolean; data: any[] | null }>({ loading: true, data: null });
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 100);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const payload = { user, activities: userActivities, donations: userDonations };
+
+    // Fetch personality insights
+    fetch('/api/ai/profile-insights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feature: 'insights', ...payload }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setAiPersonality({ loading: false, data: res.data?.parsed?.givingPersonality ?? null });
+      })
+      .catch(() => setAiPersonality({ loading: false, data: null }));
+
+    // Fetch narrative
+    fetch('/api/ai/profile-insights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feature: 'narrative', ...payload }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setAiNarrative({ loading: false, data: res.data?.content ?? null });
+      })
+      .catch(() => setAiNarrative({ loading: false, data: null }));
+
+    // Fetch recommendations
+    fetch('/api/ai/profile-insights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feature: 'recommendations', ...payload }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setAiRecommendations({ loading: false, data: res.data?.parsed?.recommendations ?? null });
+      })
+      .catch(() => setAiRecommendations({ loading: false, data: null }));
   }, []);
 
   return (
@@ -106,9 +149,13 @@ export default function SmartProfilePage() {
                 {/* Giving Personality Badge */}
                 <span
                   className="rounded-full px-3 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: givingPersonality.color, color: '#1a1a1a' }}
+                  style={{ backgroundColor: aiPersonality.data?.type ? '#6EE7B7' : givingPersonality.color, color: '#1a1a1a' }}
                 >
-                  {givingPersonality.type}
+                  {aiPersonality.loading ? (
+                    <span className="inline-block w-20 h-3 bg-gray-200 rounded animate-pulse" />
+                  ) : (
+                    aiPersonality.data?.type || givingPersonality.type
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-3 mt-1 text-sm text-gfm-secondary flex-wrap">
@@ -136,7 +183,36 @@ export default function SmartProfilePage() {
 
         {/* Personality Description */}
         <div className="rounded-xl bg-gradient-to-r from-gfm-bg to-white border border-gfm-border p-4 mb-8">
-          <p className="text-sm text-gfm-secondary italic">&ldquo;{givingPersonality.description}&rdquo;</p>
+          {aiNarrative.loading ? (
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 rounded animate-pulse w-full" />
+              <div className="h-3 bg-gray-200 rounded animate-pulse w-5/6" />
+              <div className="h-3 bg-gray-200 rounded animate-pulse w-4/6" />
+            </div>
+          ) : aiNarrative.data ? (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-medium text-gfm-green bg-gfm-light-green rounded-full px-2 py-0.5">AI-powered</span>
+              </div>
+              <div className="text-sm text-gfm-secondary leading-relaxed prose prose-sm max-w-none">
+                {aiNarrative.data.split('\n').map((line, i) => (
+                  <p key={i} className={line.trim() === '' ? 'hidden' : 'mb-1'}>{line}</p>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gfm-secondary italic">&ldquo;{aiPersonality.data?.description || givingPersonality.description}&rdquo;</p>
+          )}
+          {/* Traits pills */}
+          {!aiPersonality.loading && aiPersonality.data?.traits && aiPersonality.data.traits.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {aiPersonality.data.traits.map((trait: string) => (
+                <span key={trait} className="text-[10px] font-medium text-gfm-secondary bg-gfm-bg border border-gfm-border rounded-full px-2 py-0.5">
+                  {trait}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Impact Summary — "Giving Wrapped" */}
@@ -280,28 +356,87 @@ export default function SmartProfilePage() {
           <h2 className="text-lg font-bold text-gfm-dark mb-1">You might care about</h2>
           <p className="text-xs text-gfm-secondary mb-4">People with similar giving patterns are rallying around these</p>
           <div className="space-y-3">
-            {recommendedFundraisers.slice(0, 3).map((fund) => (
-              <Link
-                key={fund.slug}
-                href={`/f/${fund.slug}`}
-                className="flex items-center gap-4 rounded-xl border border-gfm-border p-4 hover:border-gfm-green/30 hover:shadow-sm transition-all group"
-              >
-                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                  <img src={fund.coverImageUrl} alt={fund.title} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-gfm-dark group-hover:text-gfm-green transition-colors truncate">{fund.title}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-1.5 bg-gfm-bg rounded-full overflow-hidden">
-                      <div className="h-full bg-gfm-green rounded-full" style={{ width: `${Math.min(100, (fund.raisedAmount / fund.goalAmount) * 100)}%` }} />
-                    </div>
-                    <span className="text-xs text-gfm-secondary flex-shrink-0">{formatCurrency(fund.raisedAmount)} raised</span>
+            {aiRecommendations.loading ? (
+              // Loading skeletons
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 rounded-xl border border-gfm-border p-4">
+                  <div className="w-16 h-16 rounded-lg bg-gray-200 animate-pulse flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />
+                    <div className="h-1.5 bg-gray-200 rounded-full animate-pulse w-full" />
+                    <div className="h-2 bg-gray-200 rounded animate-pulse w-1/2" />
                   </div>
-                  <p className="text-[10px] text-gfm-secondary mt-1">{fund.relevance}</p>
                 </div>
-                <ArrowUpRight className="h-4 w-4 text-gfm-secondary group-hover:text-gfm-green transition-colors flex-shrink-0" />
-              </Link>
-            ))}
+              ))
+            ) : aiRecommendations.data && aiRecommendations.data.length > 0 ? (
+              // AI-powered recommendations
+              aiRecommendations.data.slice(0, 3).map((rec) => {
+                const fund = fundraisers.find((f) => f.slug === rec.slug);
+                const urgencyColor = rec.urgency === 'high' ? 'bg-red-100 text-red-700' : rec.urgency === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700';
+                return (
+                  <Link
+                    key={rec.slug}
+                    href={`/f/${rec.slug}`}
+                    className="flex items-center gap-4 rounded-xl border border-gfm-border p-4 hover:border-gfm-green/30 hover:shadow-sm transition-all group"
+                  >
+                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                      {fund && <img src={fund.coverImageUrl} alt={rec.title} className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-gfm-dark group-hover:text-gfm-green transition-colors truncate">{rec.title}</h3>
+                        {rec.matchScore != null && (
+                          <span className="text-[10px] font-medium text-gfm-green bg-gfm-light-green rounded-full px-1.5 py-0.5 flex-shrink-0">
+                            {Math.round(rec.matchScore * 100)}% match
+                          </span>
+                        )}
+                      </div>
+                      {fund && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex-1 h-1.5 bg-gfm-bg rounded-full overflow-hidden">
+                            <div className="h-full bg-gfm-green rounded-full" style={{ width: `${Math.min(100, (fund.raisedAmount / fund.goalAmount) * 100)}%` }} />
+                          </div>
+                          <span className="text-xs text-gfm-secondary flex-shrink-0">{formatCurrency(fund.raisedAmount)} raised</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[10px] text-gfm-secondary">{rec.reason}</p>
+                        {rec.urgency && (
+                          <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 flex-shrink-0 ${urgencyColor}`}>
+                            {rec.urgency}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-gfm-secondary group-hover:text-gfm-green transition-colors flex-shrink-0" />
+                  </Link>
+                );
+              })
+            ) : (
+              // Fallback: original hardcoded recommendations
+              recommendedFundraisers.slice(0, 3).map((fund) => (
+                <Link
+                  key={fund.slug}
+                  href={`/f/${fund.slug}`}
+                  className="flex items-center gap-4 rounded-xl border border-gfm-border p-4 hover:border-gfm-green/30 hover:shadow-sm transition-all group"
+                >
+                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                    <img src={fund.coverImageUrl} alt={fund.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-gfm-dark group-hover:text-gfm-green transition-colors truncate">{fund.title}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 h-1.5 bg-gfm-bg rounded-full overflow-hidden">
+                        <div className="h-full bg-gfm-green rounded-full" style={{ width: `${Math.min(100, (fund.raisedAmount / fund.goalAmount) * 100)}%` }} />
+                      </div>
+                      <span className="text-xs text-gfm-secondary flex-shrink-0">{formatCurrency(fund.raisedAmount)} raised</span>
+                    </div>
+                    <p className="text-[10px] text-gfm-secondary mt-1">{fund.relevance}</p>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-gfm-secondary group-hover:text-gfm-green transition-colors flex-shrink-0" />
+                </Link>
+              ))
+            )}
           </div>
         </section>
 

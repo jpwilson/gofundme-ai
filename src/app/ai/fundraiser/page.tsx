@@ -75,6 +75,60 @@ export default function SmartFundraiserPage() {
   const viewerCountRef = useRef(recentViewers);
   const [viewers, setViewers] = useState(recentViewers);
 
+  // AI state
+  const [storyCoach, setStoryCoach] = useState<{ loading: boolean; data: string | null; error: boolean }>({ loading: false, data: null, error: false });
+  const [sentiment, setSentiment] = useState<{ loading: boolean; data: any | null; error: boolean }>({ loading: false, data: null, error: false });
+  const [trustScore, setTrustScore] = useState<{ loading: boolean; data: any | null; error: boolean }>({ loading: false, data: null, error: false });
+
+  // Fetch AI data on mount
+  useEffect(() => {
+    // Story coach
+    setStoryCoach((s) => ({ ...s, loading: true }));
+    fetch('/api/ai/story-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: fundraiser.title,
+        description: fundraiser.description,
+        category: fundraiser.category,
+        goalAmount: fundraiser.goalAmount,
+        raisedAmount: fundraiser.raisedAmount,
+      }),
+    })
+      .then((r) => r.json())
+      .then((json) => setStoryCoach({ loading: false, data: json.data?.content ?? null, error: false }))
+      .catch(() => setStoryCoach({ loading: false, data: null, error: true }));
+
+    // Sentiment
+    const messages = allDonations.filter((d) => d.message).map((d) => d.message as string);
+    if (messages.length > 0) {
+      setSentiment((s) => ({ ...s, loading: true }));
+      fetch('/api/ai/sentiment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages }),
+      })
+        .then((r) => r.json())
+        .then((json) => setSentiment({ loading: false, data: json.data?.parsed ?? null, error: false }))
+        .catch(() => setSentiment({ loading: false, data: null, error: true }));
+    }
+
+    // Trust score
+    setTrustScore((s) => ({ ...s, loading: true }));
+    fetch('/api/ai/trust-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fundraiser,
+        organizer: fundraiser.organizer,
+        donations: allDonations,
+      }),
+    })
+      .then((r) => r.json())
+      .then((json) => setTrustScore({ loading: false, data: json.data?.parsed ?? null, error: false }))
+      .catch(() => setTrustScore({ loading: false, data: null, error: true }));
+  }, []);
+
   // Simulate fluctuating viewer count
   useEffect(() => {
     const interval = setInterval(() => {
@@ -112,8 +166,16 @@ export default function SmartFundraiserPage() {
           Trending in {trendingIn}
         </span>
         <span className="flex items-center gap-1.5">
-          <Shield className="h-3.5 w-3.5 text-gfm-green" />
-          Verified organizer
+          <Shield className={`h-3.5 w-3.5 ${trustScore.data ? (trustScore.data.overallScore >= 70 ? 'text-gfm-green' : trustScore.data.overallScore >= 40 ? 'text-amber-500' : 'text-red-400') : 'text-gfm-green'}`} />
+          {trustScore.loading ? (
+            <span className="text-gfm-secondary">Analyzing trust...</span>
+          ) : trustScore.data ? (
+            <span className={trustScore.data.overallScore >= 70 ? 'text-gfm-green' : trustScore.data.overallScore >= 40 ? 'text-amber-500' : 'text-red-400'}>
+              Trust score: {trustScore.data.overallScore}/100 &middot; {trustScore.data.label}
+            </span>
+          ) : (
+            'Verified organizer'
+          )}
         </span>
       </div>
 
@@ -180,6 +242,25 @@ export default function SmartFundraiserPage() {
           {/* Story Quality Signals (expandable) */}
           {activeSection === 'story' && (
             <div className="rounded-xl border border-gfm-border p-5 animate-in slide-in-from-top-2 duration-200">
+              {/* AI Story Coach Section */}
+              {storyCoach.loading && (
+                <div className="flex items-center gap-2 mb-4 text-sm text-gfm-secondary">
+                  <span className="inline-block h-4 w-4 border-2 border-gfm-green border-t-transparent rounded-full animate-spin" />
+                  Analyzing your story...
+                </div>
+              )}
+              {storyCoach.data && (
+                <div className="mb-5 pb-5 border-b border-gfm-border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-bold text-gfm-dark">AI Story Coach</h3>
+                    <span className="rounded-full bg-gfm-green/10 px-2 py-0.5 text-[10px] font-medium text-gfm-green">AI-powered</span>
+                  </div>
+                  <div className="whitespace-pre-line text-sm text-gfm-secondary leading-relaxed">
+                    {storyCoach.data}
+                  </div>
+                </div>
+              )}
+
               <h3 className="font-bold text-gfm-dark mb-1">Story Quality</h3>
               <p className="text-xs text-gfm-secondary mb-4">How your story performs on key engagement signals</p>
               <div className="space-y-3">
@@ -295,6 +376,50 @@ export default function SmartFundraiserPage() {
               Words of support
               <span className="text-xs font-normal text-gfm-secondary">({allDonations.filter((d) => d.message).length})</span>
             </h3>
+
+            {/* Sentiment Summary */}
+            {sentiment.loading && (
+              <div className="flex items-center gap-2 mb-4 text-sm text-gfm-secondary">
+                <span className="inline-block h-4 w-4 border-2 border-gfm-green border-t-transparent rounded-full animate-spin" />
+                Analyzing sentiment...
+              </div>
+            )}
+            {sentiment.data && (
+              <div className="mb-5 rounded-lg bg-gfm-bg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-bold text-gfm-dark">Donor Sentiment</span>
+                  <span className="rounded-full bg-gfm-green/10 px-2 py-0.5 text-[10px] font-medium text-gfm-green">AI-powered</span>
+                </div>
+                {/* Score bar */}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex-1 h-2 bg-white rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        sentiment.data.score >= 70 ? 'bg-gfm-green' : sentiment.data.score >= 40 ? 'bg-amber-400' : 'bg-red-400'
+                      }`}
+                      style={{ width: `${sentiment.data.score}%` }}
+                    />
+                  </div>
+                  <span className={`text-sm font-bold ${
+                    sentiment.data.score >= 70 ? 'text-gfm-green' : sentiment.data.score >= 40 ? 'text-amber-500' : 'text-red-400'
+                  }`}>
+                    {sentiment.data.score}/100
+                  </span>
+                </div>
+                <p className="text-xs font-medium text-gfm-dark mb-1">{sentiment.data.label}</p>
+                <p className="text-xs text-gfm-secondary mb-2">{sentiment.data.summary}</p>
+                {sentiment.data.themes && sentiment.data.themes.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {sentiment.data.themes.map((theme: string, i: number) => (
+                      <span key={i} className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-gfm-secondary border border-gfm-border">
+                        {theme}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-4">
               {allDonations.filter((d) => d.message).slice(0, 5).map((donation) => (
                 <div key={donation.id} className="flex gap-3">
