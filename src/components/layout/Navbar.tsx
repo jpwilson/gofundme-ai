@@ -95,11 +95,6 @@ export function Navbar() {
     { label: "Fundraising tips", href: "/tips" },
   ];
 
-  const givingFundsItems = [
-    { label: "Giving Funds overview", href: "/giving-funds" },
-    { label: "Browse Giving Funds", href: "/giving-funds/browse" },
-  ];
-
   const aboutItems = [
     { label: "About GoFundMe", href: "/about" },
     { label: "Newsroom", href: "/newsroom" },
@@ -112,6 +107,7 @@ export function Navbar() {
     { label: "Jira Agent", href: "/ai2/jira-agent", description: "AI-powered engineering workflows" },
     { label: "Persona Recommendations", href: "/ai2/persona-recommendations", description: "Social media donor targeting" },
     { label: "Agent Observability", href: "/ai2/agent-observability", description: "Agent behavior tracking & traces" },
+    { label: "Giving Agent", href: "/giving-agent", description: "Automated monthly giving by AI" },
   ];
 
   const aiIdeationItems = [
@@ -121,12 +117,6 @@ export function Navbar() {
     { label: "AI Analytics", href: "/ai/analytics", description: "Costs, scale & observability" },
   ];
 
-  const ideationItems = [
-    { label: "Fundraiser Page", href: "/f/la-wildfire-alerts-and-recovery", description: "Campaign detail & donation flow" },
-    { label: "Community Page", href: "/communities/watch-duty", description: "Community hub & leaderboard" },
-    { label: "Profile Page", href: "/u/janahan", description: "User profile & giving history" },
-    { label: "Metrics Lab", href: "/metrics-lab", description: "Analytics & impact dashboard" },
-  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-gfm-border bg-white/95 backdrop-blur-sm">
@@ -153,11 +143,6 @@ export function Navbar() {
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
             <NavDropdown label="Donate" items={donateItems} />
             <NavDropdown label="Fundraise" items={fundraiseItems} />
-            <NavDropdown
-              label="Giving Funds"
-              badge="NEW"
-              items={givingFundsItems}
-            />
           </div>
         </div>
 
@@ -182,7 +167,6 @@ export function Navbar() {
             <NavDropdown label="About" items={aboutItems} />
             <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} />
             <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} />
-            <NavDropdown label="Ideation" badge="JP" items={ideationItems} />
           </div>
           <button
             className="relative p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
@@ -211,15 +195,9 @@ export function Navbar() {
           <div className="mx-auto max-w-7xl space-y-1 px-4 py-4">
             <MobileSection title="Donate" items={donateItems} />
             <MobileSection title="Fundraise" items={fundraiseItems} />
-            <MobileSection
-              title="Giving Funds"
-              badge="NEW"
-              items={givingFundsItems}
-            />
             <MobileSection title="About" items={aboutItems} />
             <MobileSection title="AI Ideation2" badge="JP" items={ai2IdeationItems} />
             <MobileSection title="AI Ideation" badge="JP" items={aiIdeationItems} />
-            <MobileSection title="Ideation" badge="JP" items={ideationItems} />
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
               <Link
                 href="/sign-in"
