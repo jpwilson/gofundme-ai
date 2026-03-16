@@ -2,15 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Search, Bell, Menu, X, ChevronDown } from "lucide-react";
 
 interface NavDropdownProps {
   label: string;
   badge?: string;
   items: { label: string; href: string; description?: string }[];
+  isActive?: boolean;
 }
 
-function NavDropdown({ label, badge, items }: NavDropdownProps) {
+function NavDropdown({ label, badge, items, isActive }: NavDropdownProps) {
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -31,9 +33,11 @@ function NavDropdown({ label, badge, items }: NavDropdownProps) {
     >
       <button
         className={`flex items-center gap-1 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${
-          open
-            ? "text-gfm-green bg-gfm-light-green/40"
-            : "text-gfm-dark hover:text-gfm-green"
+          isActive
+            ? "text-pink-600 bg-pink-50"
+            : open
+              ? "text-gfm-green bg-gfm-light-green/40"
+              : "text-gfm-dark hover:text-gfm-green"
         }`}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
@@ -73,7 +77,15 @@ function NavDropdown({ label, badge, items }: NavDropdownProps) {
 }
 
 export function Navbar() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Check if any item in a dropdown matches the current path
+  const isDropdownActive = (items: { href: string }[]) =>
+    items.some((item) => pathname === item.href || pathname.startsWith(item.href + '/'));
+
+  const isLinkActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + '/');
 
   // Close mobile menu on route change / resize
   useEffect(() => {
@@ -141,8 +153,8 @@ export function Navbar() {
             <Search className="h-5 w-5" />
           </Link>
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="Donate" items={donateItems} />
-            <NavDropdown label="Fundraise" items={fundraiseItems} />
+            <NavDropdown label="Donate" items={donateItems} isActive={isDropdownActive(donateItems)} />
+            <NavDropdown label="Fundraise" items={fundraiseItems} isActive={isDropdownActive(fundraiseItems)} />
           </div>
         </div>
 
@@ -164,11 +176,11 @@ export function Navbar() {
         {/* Right section */}
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="About" items={aboutItems} />
-            <Link href="/docs" className="text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors px-3 py-2 rounded-lg hover:bg-gfm-bg">Docs</Link>
-            <Link href="/explore" className="text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors px-3 py-2 rounded-lg hover:bg-gfm-bg">Explore</Link>
-            <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} />
-            <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} />
+            <NavDropdown label="About" items={aboutItems} isActive={isDropdownActive(aboutItems)} />
+            <Link href="/docs" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isLinkActive('/docs') ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Docs</Link>
+            <Link href="/explore" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isLinkActive('/explore') ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Explore</Link>
+            <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} isActive={isDropdownActive(ai2IdeationItems)} />
+            <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} isActive={isDropdownActive(aiIdeationItems)} />
           </div>
           <button
             className="relative p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
