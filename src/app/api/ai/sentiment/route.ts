@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { aiComplete } from '@/lib/ai/provider';
+import { parseAIJSON } from '@/lib/ai/parseJSON';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Try to parse JSON from response, fall back to raw content
     let parsed;
     try {
-      parsed = JSON.parse(response.content);
+      parsed = parseAIJSON(response.content);
     } catch {
       parsed = { raw: response.content };
     }

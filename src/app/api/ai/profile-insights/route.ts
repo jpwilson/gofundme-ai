@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { aiComplete } from '@/lib/ai/provider';
+import { parseAIJSON } from '@/lib/ai/parseJSON';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ Donations: ${JSON.stringify(donations?.slice(0, 10), null, 2)}`,
     let parsed;
     if (aiFeature !== 'impact_narrative') {
       try {
-        parsed = JSON.parse(response.content);
+        parsed = parseAIJSON(response.content);
       } catch {
         parsed = { raw: response.content };
       }
