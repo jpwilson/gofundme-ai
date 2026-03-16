@@ -84,15 +84,11 @@ export function Navbar() {
   // Priority: direct links first, then dropdowns with unique routes.
   // Dropdowns that share hrefs with direct links (About→/docs) don't count.
   const getActiveNav = (): string | null => {
+    if (pathname.startsWith('/f/') || pathname.startsWith('/communities/') || pathname.startsWith('/u/')) return 'core';
+    if (pathname.startsWith('/ai/fundraiser') || pathname.startsWith('/ai/community') || pathname.startsWith('/ai/profile') || pathname.startsWith('/ai2/fraud') || pathname.startsWith('/giving-agent') || pathname.startsWith('/ai2/persona')) return 'aifeatures';
+    if (pathname.startsWith('/ai/analytics') || pathname.startsWith('/ai2/jira') || pathname.startsWith('/ai2/agent')) return 'internal';
     if (pathname === '/docs') return 'docs';
     if (pathname === '/explore') return 'explore';
-    // AI Ideation now contains most AI features
-    if (pathname.startsWith('/ai/') || pathname.startsWith('/ai2/fraud-detection') || pathname.startsWith('/ai2/persona') || pathname.startsWith('/giving-agent')) return 'ai';
-    // AI Ideation2 is just Jira + Observability
-    if (pathname.startsWith('/ai2/')) return 'ai2';
-    if (pathname.startsWith('/f/') || pathname.startsWith('/communities/') || pathname.startsWith('/u/')) return 'core';
-    if (pathname === '/search') return 'donate';
-    if (pathname === '/create') return 'fundraise';
     return null;
   };
   const activeNav = getActiveNav();
@@ -106,34 +102,26 @@ export function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const donateItems = [
-    { label: "Donate to a fundraiser", href: "/search" },
-    { label: "Pricing", href: "/create" },
+  // Core 3 pages — the primary deliverable
+  const corePageItems = [
+    { label: "Fundraiser Page", href: "/f/la-wildfire-alerts-and-recovery", description: "AI trust badge & sentiment analysis" },
+    { label: "Community Page", href: "/communities/watch-duty", description: "AI digest & campaign discovery" },
+    { label: "Profile Page", href: "/u/janahan", description: "AI giving personality badge" },
   ];
 
-  const fundraiseItems = [
-    { label: "Start a GoFundMe", href: "/create" },
-    { label: "How it works", href: "/docs" },
-    { label: "Fundraising tips", href: "/docs" },
-  ];
-
-  const aboutItems = [
-    { label: "About GoFundMe", href: "/docs" },
-    { label: "Documentation", href: "/docs" },
-    { label: "GitHub", href: "https://github.com/jpwilson/gofundme-ai" },
-  ];
-
-  const aiIdeationItems = [
+  // AI-enhanced versions of the 3 pages + AI tools
+  const aiFeatureItems = [
     { label: "AI Story Coach", href: "/ai/fundraiser", description: "Campaign narrative analysis & suggestions" },
     { label: "AI Community", href: "/ai/community", description: "Smart digests & campaign discovery" },
     { label: "AI Donor Insights", href: "/ai/profile", description: "Giving personality & recommendations" },
     { label: "Fraud Detection", href: "/ai2/fraud-detection", description: "Trust scoring & anomaly detection" },
     { label: "Giving Agent", href: "/giving-agent", description: "Automated monthly giving by AI" },
     { label: "Persona Targeting", href: "/ai2/persona-recommendations", description: "Donor persona & outreach strategy" },
-    { label: "AI Analytics", href: "/ai/analytics", description: "Costs, scale & LangFuse observability" },
   ];
 
-  const ai2IdeationItems = [
+  // Internal / ops tools
+  const internalItems = [
+    { label: "AI Analytics & Costs", href: "/ai/analytics", description: "LangFuse, scale projections & dev costs" },
     { label: "Jira Agent", href: "/ai2/jira-agent", description: "AI-powered engineering workflows" },
     { label: "Agent Observability", href: "/ai2/agent-observability", description: "Agent behavior tracking & traces" },
   ];
@@ -162,8 +150,7 @@ export function Navbar() {
             <Search className="h-5 w-5" />
           </Link>
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="Donate" items={donateItems} isActive={activeNav === 'donate'} />
-            <NavDropdown label="Fundraise" items={fundraiseItems} isActive={activeNav === 'fundraise'} />
+            <NavDropdown label="Core Pages" items={corePageItems} isActive={activeNav === 'core'} />
           </div>
         </div>
 
@@ -185,11 +172,10 @@ export function Navbar() {
         {/* Right section */}
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="About" items={aboutItems} />
+            <NavDropdown label="AI Features" items={aiFeatureItems} isActive={activeNav === 'aifeatures'} />
+            <NavDropdown label="Internal" items={internalItems} isActive={activeNav === 'internal'} />
             <Link href="/docs" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${activeNav === 'docs' ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Docs</Link>
             <Link href="/explore" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${activeNav === 'explore' ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Explore</Link>
-            <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} isActive={activeNav === 'ai2'} />
-            <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} isActive={activeNav === 'ai'} />
           </div>
           <button
             className="relative p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
@@ -216,12 +202,11 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="border-t border-gfm-border bg-white lg:hidden animate-in slide-in-from-top-2 duration-200">
           <div className="mx-auto max-w-7xl space-y-1 px-4 py-4">
-            <MobileSection title="Donate" items={donateItems} />
-            <MobileSection title="Fundraise" items={fundraiseItems} />
-            <MobileSection title="About" items={aboutItems} />
+            <MobileSection title="Core Pages" items={corePageItems} />
+            <MobileSection title="AI Features" items={aiFeatureItems} />
+            <MobileSection title="Internal" items={internalItems} />
             <Link href="/docs" className="block py-3 text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors">Docs</Link>
-            <MobileSection title="AI Ideation2" badge="JP" items={ai2IdeationItems} />
-            <MobileSection title="AI Ideation" badge="JP" items={aiIdeationItems} />
+            <Link href="/explore" className="block py-3 text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors">Explore</Link>
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
               <Link
                 href="/sign-in"
