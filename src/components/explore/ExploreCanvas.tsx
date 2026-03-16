@@ -28,9 +28,9 @@ const CATEGORY_META: Record<Category, { color: string; label: string }> = {
 
 const NODES: NodeData[] = [
   // Core Pages
-  { id: 'fundraiser-page', label: 'Fundraiser Page', category: 'core', description: 'Main fundraiser view with story, donations, and AI-powered insights.', href: '/ai/fundraiser' },
-  { id: 'community-page', label: 'Community Page', category: 'core', description: 'Community hub with digests, cause matching, and activity feeds.', href: '/ai/community' },
-  { id: 'profile-page', label: 'Profile Page', category: 'core', description: 'Donor profile with giving personality and personalized recommendations.', href: '/ai/profile' },
+  { id: 'fundraiser-page', label: 'Fundraiser Page', category: 'core', description: 'Main fundraiser view with story, donations, and AI-powered insights.', href: '/f/la-wildfire-alerts-and-recovery' },
+  { id: 'community-page', label: 'Community Page', category: 'core', description: 'Community hub with digests, cause matching, and activity feeds.', href: '/communities/watch-duty' },
+  { id: 'profile-page', label: 'Profile Page', category: 'core', description: 'Donor profile with giving personality and personalized recommendations.', href: '/u/janahan' },
   // AI Features
   { id: 'story-coach', label: 'Story Coach', category: 'ai-features', description: 'AI writing assistant that helps craft compelling fundraiser stories.', api: 'Claude API' },
   { id: 'sentiment-analysis', label: 'Sentiment Analysis', category: 'ai-features', description: 'Analyzes emotional tone of fundraiser stories and comments.', api: 'Claude API' },
@@ -40,11 +40,8 @@ const NODES: NodeData[] = [
   { id: 'cause-matching', label: 'Cause Matching', category: 'ai-features', description: 'Matches donors with causes aligned to their values.', api: 'Claude API' },
   { id: 'fundraiser-recs', label: 'Fundraiser Recommendations', category: 'ai-features', description: 'Personalized fundraiser recommendations based on user behavior.', api: 'Claude API' },
   // AI Products
-  { id: 'fraud-detection', label: 'Fraud Detection', category: 'ai-products', description: 'Anomaly detection system identifying potentially fraudulent fundraisers.', href: '/ai2/fraud-detection' },
+  { id: 'fraud-detection', label: 'Fraud Detection', category: 'ai-products', description: 'Anomaly detection system identifying potentially fraudulent fundraisers.', href: '/fraud-detection' },
   { id: 'giving-agent', label: 'Giving Agent', category: 'ai-products', description: 'Automated monthly giving agent that donates on behalf of users.', href: '/giving-agent' },
-  { id: 'persona-targeting', label: 'Persona Targeting', category: 'ai-products', description: 'Social media donor persona identification and targeting.', href: '/ai2/persona-recommendations' },
-  { id: 'agent-observability', label: 'Agent Observability', category: 'ai-products', description: 'Monitoring and tracing for AI agent behavior and performance.', href: '/ai2/agent-observability' },
-  { id: 'jira-agent', label: 'Jira Agent', category: 'ai-products', description: 'AI-powered Jira workflows for engineering productivity.', href: '/ai2/jira-agent' },
   // Infrastructure
   { id: 'claude-api', label: 'Claude API (OpenRouter)', category: 'infrastructure', description: 'Primary LLM provider via OpenRouter for all AI features.' },
   { id: 'langfuse', label: 'LangFuse', category: 'infrastructure', description: 'LLM observability platform for cost tracking and prompt management.' },

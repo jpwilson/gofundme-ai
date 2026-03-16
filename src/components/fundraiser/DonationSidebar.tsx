@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import type { Fundraiser, Donation } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
@@ -13,6 +14,11 @@ import {
   formatPercentage,
 } from "@/lib/utils/format";
 
+interface SmartAskAmount {
+  amount: number; // cents
+  label: string;
+}
+
 interface DonationSidebarProps {
   fundraiser: Fundraiser;
   donations: Donation[];
@@ -23,6 +29,44 @@ export function DonationSidebar({
   donations,
 }: DonationSidebarProps) {
   const [showAll, setShowAll] = useState(false);
+  const [smartAsks, setSmartAsks] = useState<SmartAskAmount[] | null>(null);
+  const [smartAsksLoading, setSmartAsksLoading] = useState(true);
+
+  useEffect(() => {
+    const amounts = donations.map((d) => d.amount);
+    const total = amounts.reduce((s, a) => s + a, 0);
+    const averageDonation = amounts.length > 0 ? Math.round(total / amounts.length) : 0;
+    const sorted = [...amounts].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    const medianDonation = sorted.length > 0
+      ? sorted.length % 2 !== 0
+        ? sorted[mid]
+        : Math.round((sorted[mid - 1] + sorted[mid]) / 2)
+      : 0;
+
+    fetch("/api/ai/smart-asks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: fundraiser.title,
+        category: fundraiser.category,
+        goalAmount: fundraiser.goalAmount,
+        raisedAmount: fundraiser.raisedAmount,
+        donationCount: fundraiser.donationCount,
+        averageDonation,
+        medianDonation,
+      }),
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        const parsed = json?.data?.parsed;
+        if (parsed?.amounts && Array.isArray(parsed.amounts)) {
+          setSmartAsks(parsed.amounts);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setSmartAsksLoading(false));
+  }, [fundraiser, donations]);
 
   const percentage = formatPercentage(
     fundraiser.raisedAmount,
@@ -79,6 +123,55 @@ export function DonationSidebar({
               {fundraiser.donationCount !== 1 ? "s" : ""}
             </p>
           </div>
+        </div>
+
+        {/* Smart Ask Amounts */}
+        <div className="space-y-2">
+          {smartAsks && !smartAsksLoading && (
+            <div className="flex items-center gap-1.5 mb-1">
+              <Sparkles className="h-3.5 w-3.5 text-gfm-green" />
+              <span className="text-xs font-medium text-gfm-secondary">Personalized for this campaign</span>
+            </div>
+          )}
+          {smartAsksLoading ? (
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse rounded-lg border border-gfm-border bg-gfm-bg/30 p-3 text-center">
+                  <div className="h-5 w-12 mx-auto rounded bg-gray-200 mb-1" />
+                  <div className="h-3 w-full rounded bg-gray-200" />
+                </div>
+              ))}
+            </div>
+          ) : smartAsks ? (
+            <div className="grid grid-cols-3 gap-2">
+              {smartAsks.slice(0, 6).map((ask) => (
+                <Link
+                  key={ask.amount}
+                  href={`/f/${fundraiser.slug}/donate?amount=${ask.amount}`}
+                  className="rounded-lg border border-gfm-border bg-white p-3 text-center hover:border-gfm-green hover:bg-gfm-green/5 transition-colors group"
+                >
+                  <p className="text-base font-bold text-gfm-dark group-hover:text-gfm-green">
+                    {formatCurrency(ask.amount)}
+                  </p>
+                  <p className="text-[10px] text-gfm-secondary leading-tight mt-0.5 line-clamp-2">
+                    {ask.label}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {[2500, 5000, 10000].map((amt) => (
+                <Link
+                  key={amt}
+                  href={`/f/${fundraiser.slug}/donate?amount=${amt}`}
+                  className="rounded-lg border border-gfm-border bg-white p-3 text-center hover:border-gfm-green hover:bg-gfm-green/5 transition-colors"
+                >
+                  <p className="text-base font-bold text-gfm-dark">{formatCurrency(amt)}</p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Action buttons */}

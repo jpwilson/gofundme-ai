@@ -11,9 +11,6 @@ import {
   Brain,
   BarChart3,
   Shield,
-  Ticket,
-  Target,
-  Eye,
   Wallet,
   Activity,
   MousePointerClick,
@@ -228,20 +225,20 @@ export default function DocsPage() {
           />
           <div className="grid gap-6 sm:grid-cols-2">
             <Card
-              href="/ai/fundraiser"
+              href="/f/la-wildfire-alerts-and-recovery"
               icon={Sparkles}
               title="AI Fundraiser"
               badge="Claude"
               description="Story coach that analyzes campaign narratives, sentiment analysis on donor messages, and trust scoring for organizer verification. Powered by Claude via OpenRouter."
             />
             <Card
-              href="/ai/community"
+              href="/communities/watch-duty"
               icon={Brain}
               title="AI Community"
               description="AI-generated weekly digests summarizing community activity, smart campaign discovery with urgency and momentum signals."
             />
             <Card
-              href="/ai/profile"
+              href="/u/janahan"
               icon={User}
               title="AI Profile"
               description="AI giving personality analysis, impact narrative generation, personalized fundraiser recommendations based on giving patterns."
@@ -262,32 +259,14 @@ export default function DocsPage() {
           <SectionHeading
             tag="AI Ideation 2"
             title="More AI Explorations"
-            subtitle="A second wave of AI features pushing into fraud detection, agent workflows, persona targeting, and autonomous giving."
+            subtitle="AI-powered fraud detection and autonomous giving — trust & safety and donor engagement working together."
           />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <Card
-              href="/ai2/fraud-detection"
+              href="/fraud-detection"
               icon={Shield}
               title="Fraud Detection"
               description="Real-time anomaly detection with configurable rules, trust score distribution, and live monitoring feed."
-            />
-            <Card
-              href="/ai2/jira-agent"
-              icon={Ticket}
-              title="Jira Agent"
-              description="AI-powered engineering workflows for ticket creation, PR reviews, and sprint planning."
-            />
-            <Card
-              href="/ai2/persona-recommendations"
-              icon={Target}
-              title="Persona Recommendations"
-              description="Donor persona targeting with demographics, platform preferences, and outreach strategies."
-            />
-            <Card
-              href="/ai2/agent-observability"
-              icon={Eye}
-              title="Agent Observability"
-              description="Agent behavior tracking with trace visualization, decision logs, and pattern detection."
             />
             <Card
               href="/giving-agent"

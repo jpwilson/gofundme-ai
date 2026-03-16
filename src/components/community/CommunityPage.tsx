@@ -92,38 +92,52 @@ export function CommunityPage({ slug }: CommunityPageProps) {
       {/* Header */}
       <CommunityHeader community={community} followers={sampleFollowers} />
 
-      {/* AI Community Digest */}
-      <div className="mx-auto max-w-6xl px-4 mt-4">
+      {/* AI Community Digest - Prominent placement */}
+      <div className="mx-auto max-w-6xl px-4 mt-6">
         {digestLoading ? (
-          <div className="animate-pulse rounded-lg border border-gfm-border bg-gfm-bg/30 p-3">
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded bg-gray-200" />
-              <div className="h-3 w-32 rounded bg-gray-200" />
+          <div className="animate-pulse rounded-xl bg-gradient-to-r from-gfm-green/5 via-emerald-50 to-teal-50 p-[2px]">
+            <div className="rounded-[10px] bg-white p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-5 w-5 rounded bg-gray-200" />
+                <div className="h-4 w-40 rounded bg-gray-200" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-full rounded bg-gray-200" />
+                <div className="h-3 w-5/6 rounded bg-gray-200" />
+                <div className="h-3 w-3/4 rounded bg-gray-200" />
+              </div>
             </div>
           </div>
         ) : digest ? (
-          <div id="tour-ai-digest" className="rounded-lg border border-gfm-border bg-gfm-bg/30">
-            <button
-              onClick={() => setDigestOpen(!digestOpen)}
-              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gfm-dark hover:bg-gfm-bg/50 rounded-lg transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-gfm-green" />
-                View AI digest
-              </span>
-              {digestOpen ? (
-                <ChevronUp className="h-4 w-4 text-gfm-secondary" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-gfm-secondary" />
+          <div
+            id="tour-ai-digest"
+            className="rounded-xl bg-gradient-to-r from-gfm-green/30 via-emerald-200/40 to-teal-200/30 p-[2px]"
+          >
+            <div className="rounded-[10px] bg-gradient-to-br from-white to-gfm-green/[0.02]">
+              <button
+                onClick={() => setDigestOpen(!digestOpen)}
+                className="flex w-full items-center justify-between px-5 py-4 text-sm font-semibold text-gfm-dark hover:bg-gfm-green/[0.03] rounded-[10px] transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gfm-green/10">
+                    <Sparkles className="h-4 w-4 text-gfm-green" />
+                  </span>
+                  AI Community Digest
+                </span>
+                {digestOpen ? (
+                  <ChevronUp className="h-4 w-4 text-gfm-secondary" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gfm-secondary" />
+                )}
+              </button>
+              {digestOpen && (
+                <div className="border-t border-gfm-green/10 px-5 py-4">
+                  <p className="text-sm leading-relaxed text-gfm-secondary whitespace-pre-line">
+                    {digest.summary}
+                  </p>
+                </div>
               )}
-            </button>
-            {digestOpen && (
-              <div className="border-t border-gfm-border px-4 py-3">
-                <p className="text-sm leading-relaxed text-gfm-secondary whitespace-pre-line">
-                  {digest.summary}
-                </p>
-              </div>
-            )}
+            </div>
           </div>
         ) : null}
       </div>

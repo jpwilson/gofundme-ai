@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Shield } from "lucide-react";
 import type { Fundraiser } from "@/lib/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -88,10 +90,19 @@ export function OrganizerSection({ fundraiser }: OrganizerSectionProps) {
         <span className="capitalize">{categoryLabel}</span>
       </div>
 
-      {/* Report link */}
-      <button className="text-xs text-gfm-secondary underline hover:text-gfm-dark transition-colors">
-        Report fundraiser
-      </button>
+      {/* Report & Trust links */}
+      <div className="flex items-center gap-4">
+        <button className="text-xs text-gfm-secondary underline hover:text-gfm-dark transition-colors">
+          Report fundraiser
+        </button>
+        <Link
+          href="/fraud-detection"
+          className="inline-flex items-center gap-1 text-xs text-gfm-secondary hover:text-gfm-dark transition-colors"
+        >
+          <Shield className="h-3.5 w-3.5" />
+          View Trust &amp; Safety
+        </Link>
+      </div>
     </div>
   );
 }

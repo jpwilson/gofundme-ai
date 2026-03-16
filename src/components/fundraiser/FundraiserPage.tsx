@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shield, Sparkles } from "lucide-react";
+import { Shield, Sparkles, Share2, Mail, MessageCircle, Copy, CheckCircle2, X } from "lucide-react";
 import type { Fundraiser, Donation, LeaderboardEntry } from "@/lib/types";
 import { ImageCarousel } from "./ImageCarousel";
 import { DonationSidebar } from "./DonationSidebar";
@@ -9,6 +9,7 @@ import { CampaignDescription } from "./CampaignDescription";
 import { LeaderboardSection } from "./LeaderboardSection";
 import { OrganizerSection } from "./OrganizerSection";
 import { CauseSection } from "./CauseSection";
+import { MarkdownContent } from "@/components/ui/MarkdownContent";
 
 interface TrustScoreData {
   score: number;
@@ -46,6 +47,78 @@ export function FundraiserPage({
   const [sentimentLoading, setSentimentLoading] = useState(
     () => donations.some((d) => !!d.message)
   );
+
+  // Story Coach state
+  const [storyFeedback, setStoryFeedback] = useState<string | null>(null);
+  const [storyLoading, setStoryLoading] = useState(false);
+  const [storyVisible, setStoryVisible] = useState(true);
+
+  // Share Content state
+  const [shareContent, setShareContent] = useState<{
+    tweet: string;
+    instagram: string;
+    email_subject: string;
+    email_body: string;
+    sms: string;
+  } | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareTab, setShareTab] = useState<"twitter" | "instagram" | "email" | "sms">("twitter");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  function handleGetStoryFeedback() {
+    setStoryLoading(true);
+    setStoryVisible(true);
+    fetch("/api/ai/story-coach", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: fundraiser.title,
+        description: fundraiser.description,
+        category: fundraiser.category,
+        goalAmount: fundraiser.goalAmount,
+        raisedAmount: fundraiser.raisedAmount,
+      }),
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        const content = json?.data?.content;
+        if (content) setStoryFeedback(content);
+      })
+      .catch(() => {})
+      .finally(() => setStoryLoading(false));
+  }
+
+  function handleGenerateShare() {
+    setShareLoading(true);
+    setShareOpen(true);
+    fetch("/api/ai/share-content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: fundraiser.title,
+        description: fundraiser.description,
+        goalAmount: fundraiser.goalAmount,
+        raisedAmount: fundraiser.raisedAmount,
+        organizer: fundraiser.organizer.displayName,
+        url: "",
+      }),
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        const parsed = json?.data?.parsed;
+        if (parsed) setShareContent(parsed);
+      })
+      .catch(() => {})
+      .finally(() => setShareLoading(false));
+  }
+
+  function copyToClipboard(text: string, field: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    });
+  }
 
   useEffect(() => {
     fetch("/api/ai/trust-score", {
@@ -120,6 +193,162 @@ export function FundraiserPage({
           <ImageCarousel images={allImages} alt={fundraiser.title} />
 
           <CampaignDescription fundraiser={fundraiser} />
+
+          {/* AI Story Coach */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleGetStoryFeedback}
+                disabled={storyLoading}
+                className="inline-flex items-center gap-2 rounded-full border border-gfm-border bg-white px-4 py-2 text-sm font-semibold text-gfm-dark hover:bg-gfm-bg transition-colors disabled:opacity-50"
+              >
+                <Sparkles className="h-4 w-4 text-gfm-green" />
+                {storyFeedback ? "Refresh AI Story Feedback" : "Get AI Story Feedback"}
+              </button>
+              <button
+                onClick={handleGenerateShare}
+                disabled={shareLoading}
+                className="inline-flex items-center gap-2 rounded-full border border-gfm-border bg-white px-4 py-2 text-sm font-semibold text-gfm-dark hover:bg-gfm-bg transition-colors disabled:opacity-50"
+              >
+                <Share2 className="h-4 w-4 text-gfm-green" />
+                Generate Share Messages
+              </button>
+            </div>
+
+            {storyLoading && (
+              <div className="animate-pulse rounded-lg border border-gfm-border bg-gfm-bg/30 p-4 space-y-2">
+                <div className="h-4 w-48 rounded bg-gray-200" />
+                <div className="h-3 w-full rounded bg-gray-200" />
+                <div className="h-3 w-full rounded bg-gray-200" />
+                <div className="h-3 w-2/3 rounded bg-gray-200" />
+              </div>
+            )}
+
+            {storyFeedback && !storyLoading && (
+              <div className="rounded-lg border border-gfm-border bg-gfm-bg/30 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-gfm-green" />
+                    <span className="text-sm font-semibold text-gfm-dark">AI Story Feedback</span>
+                  </div>
+                  <button
+                    onClick={() => setStoryVisible(!storyVisible)}
+                    className="text-xs text-gfm-secondary hover:text-gfm-dark transition-colors underline"
+                  >
+                    {storyVisible ? "Hide feedback" : "Show feedback"}
+                  </button>
+                </div>
+                {storyVisible && <MarkdownContent content={storyFeedback} />}
+              </div>
+            )}
+          </div>
+
+          {/* Share Content Modal */}
+          {shareOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Share2 className="h-5 w-5 text-gfm-green" />
+                    <h3 className="text-lg font-bold text-gfm-dark">Share Messages</h3>
+                  </div>
+                  <button
+                    onClick={() => setShareOpen(false)}
+                    className="rounded-full p-1 hover:bg-gfm-bg transition-colors"
+                  >
+                    <X className="h-5 w-5 text-gfm-secondary" />
+                  </button>
+                </div>
+
+                {shareLoading ? (
+                  <div className="animate-pulse space-y-3 py-4">
+                    <div className="h-4 w-32 rounded bg-gray-200" />
+                    <div className="h-20 w-full rounded bg-gray-200" />
+                  </div>
+                ) : shareContent ? (
+                  <>
+                    <div className="flex gap-1 border-b border-gfm-border mb-4">
+                      {(["twitter", "instagram", "email", "sms"] as const).map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setShareTab(tab)}
+                          className={`px-3 py-2 text-sm font-semibold transition-colors border-b-2 ${
+                            shareTab === tab
+                              ? "border-gfm-green text-gfm-green"
+                              : "border-transparent text-gfm-secondary hover:text-gfm-dark"
+                          }`}
+                        >
+                          {tab === "twitter" ? "Twitter/X" : tab === "instagram" ? "Instagram" : tab === "email" ? "Email" : "SMS"}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-3">
+                      {shareTab === "twitter" && (
+                        <div className="space-y-2">
+                          <div className="rounded-lg border border-gfm-border bg-gfm-bg/30 p-3">
+                            <p className="text-sm text-gfm-dark whitespace-pre-wrap">{shareContent.tweet}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(shareContent.tweet, "tweet")}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gfm-green hover:underline"
+                          >
+                            {copiedField === "tweet" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedField === "tweet" ? "Copied!" : "Copy"}
+                          </button>
+                        </div>
+                      )}
+                      {shareTab === "instagram" && (
+                        <div className="space-y-2">
+                          <div className="rounded-lg border border-gfm-border bg-gfm-bg/30 p-3">
+                            <p className="text-sm text-gfm-dark whitespace-pre-wrap">{shareContent.instagram}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(shareContent.instagram, "instagram")}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gfm-green hover:underline"
+                          >
+                            {copiedField === "instagram" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedField === "instagram" ? "Copied!" : "Copy"}
+                          </button>
+                        </div>
+                      )}
+                      {shareTab === "email" && (
+                        <div className="space-y-2">
+                          <div className="rounded-lg border border-gfm-border bg-gfm-bg/30 p-3">
+                            <p className="text-xs font-semibold text-gfm-secondary mb-1">Subject</p>
+                            <p className="text-sm text-gfm-dark mb-3">{shareContent.email_subject}</p>
+                            <p className="text-xs font-semibold text-gfm-secondary mb-1">Body</p>
+                            <p className="text-sm text-gfm-dark whitespace-pre-wrap">{shareContent.email_body}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(`Subject: ${shareContent.email_subject}\n\n${shareContent.email_body}`, "email")}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gfm-green hover:underline"
+                          >
+                            {copiedField === "email" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedField === "email" ? "Copied!" : "Copy"}
+                          </button>
+                        </div>
+                      )}
+                      {shareTab === "sms" && (
+                        <div className="space-y-2">
+                          <div className="rounded-lg border border-gfm-border bg-gfm-bg/30 p-3">
+                            <p className="text-sm text-gfm-dark whitespace-pre-wrap">{shareContent.sms}</p>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(shareContent.sms, "sms")}
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gfm-green hover:underline"
+                          >
+                            {copiedField === "sms" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedField === "sms" ? "Copied!" : "Copy"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          )}
 
           {/* AI Sentiment Summary */}
           <div id="tour-sentiment" />

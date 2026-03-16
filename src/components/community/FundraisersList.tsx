@@ -1,3 +1,4 @@
+import { Flame, TrendingUp, Clock } from "lucide-react";
 import type { Fundraiser } from "@/lib/types";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Avatar } from "@/components/ui/Avatar";
@@ -6,12 +7,55 @@ import {
   formatPercentage,
 } from "@/lib/utils/format";
 
+function getSmartTags(fundraiser: Fundraiser) {
+  const tags: { label: string; color: string; icon: "flame" | "trending" | "clock" }[] = [];
+  const pctToGoal = fundraiser.goalAmount > 0
+    ? (fundraiser.raisedAmount / fundraiser.goalAmount) * 100
+    : 0;
+
+  const createdDate = new Date(fundraiser.createdAt);
+  const now = new Date();
+  const daysSinceCreation = Math.max(1, Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
+  const isNew = daysSinceCreation <= 14;
+  const isNearGoal = pctToGoal >= 70 && pctToGoal < 100;
+
+  // Velocity: raised per day (in cents)
+  const velocity = fundraiser.raisedAmount / daysSinceCreation;
+  // "Most urgent" = near goal with high velocity
+  const isUrgent = isNearGoal && velocity > 5000; // > $50/day
+
+  if (isUrgent) {
+    tags.push({ label: "Most urgent", color: "red", icon: "flame" });
+  } else if (isNearGoal) {
+    tags.push({ label: "Almost there", color: "amber", icon: "trending" });
+  }
+
+  if (isNew) {
+    tags.push({ label: "New", color: "blue", icon: "clock" });
+  }
+
+  return tags;
+}
+
+function SmartTagIcon({ icon }: { icon: "flame" | "trending" | "clock" }) {
+  if (icon === "flame") return <Flame className="h-3 w-3" />;
+  if (icon === "trending") return <TrendingUp className="h-3 w-3" />;
+  return <Clock className="h-3 w-3" />;
+}
+
 interface FundraisersListProps {
   fundraisers: Fundraiser[];
 }
 
 function FundraiserCard({ fundraiser }: { fundraiser: Fundraiser }) {
   const pct = formatPercentage(fundraiser.raisedAmount, fundraiser.goalAmount);
+  const tags = getSmartTags(fundraiser);
+
+  const colorMap: Record<string, { bg: string; text: string }> = {
+    red: { bg: "bg-red-50", text: "text-red-600" },
+    amber: { bg: "bg-amber-50", text: "text-amber-600" },
+    blue: { bg: "bg-blue-50", text: "text-blue-600" },
+  };
 
   return (
     <a
@@ -25,6 +69,23 @@ function FundraiserCard({ fundraiser }: { fundraiser: Fundraiser }) {
           alt={fundraiser.title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        {/* Smart campaign tags overlay */}
+        {tags.length > 0 && (
+          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+            {tags.map((tag) => {
+              const colors = colorMap[tag.color] || colorMap.blue;
+              return (
+                <span
+                  key={tag.label}
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm backdrop-blur-sm ${colors.bg} ${colors.text}`}
+                >
+                  <SmartTagIcon icon={tag.icon} />
+                  {tag.label}
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Content */}

@@ -20,26 +20,26 @@ const TOUR_STEPS = [
   {
     title: 'AI Story Coach',
     description:
-      'The AI Fundraiser page analyzes campaign narratives, scores story quality, suggests headline alternatives, and provides photo performance tips.',
-    link: '/ai/fundraiser',
+      'The Fundraiser page includes AI enhancements: a trust badge, sentiment analysis, and a story coach that analyzes narratives and suggests improvements.',
+    link: '/f/la-wildfire-alerts-and-recovery',
   },
   {
     title: 'Community Intelligence',
     description:
       'AI generates weekly community digests and surfaces smart campaign discovery with urgency and momentum signals.',
-    link: '/ai/community',
+    link: '/communities/watch-duty',
   },
   {
     title: 'Donor Insights',
     description:
       'AI analyzes giving patterns to generate personality profiles, impact narratives, and personalized fundraiser recommendations.',
-    link: '/ai/profile',
+    link: '/u/janahan',
   },
   {
     title: 'Fraud Detection',
     description:
       "A trust & safety dashboard with AI-powered trust scoring. Click 'Review' on any flagged campaign for real-time Claude analysis.",
-    link: '/ai2/fraud-detection',
+    link: '/fraud-detection',
   },
   {
     title: 'AI Analytics',
