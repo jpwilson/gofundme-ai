@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Brain } from "lucide-react";
 import { ProfileHeader } from "./ProfileHeader";
 import { DiscoverPeople } from "./DiscoverPeople";
 import { TopCauses } from "./TopCauses";
@@ -25,6 +26,35 @@ export function ProfilePage({ username }: ProfilePageProps) {
   const [isOwnProfile, setIsOwnProfile] = useState<boolean>(
     user?.isOwnProfile ?? false
   );
+
+  const [givingPersonality, setGivingPersonality] = useState<{
+    type: string;
+    description: string;
+    color: string;
+  } | null>(null);
+  const [personalityLoading, setPersonalityLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setPersonalityLoading(false);
+      return;
+    }
+    const activities = getActivitiesByUserId(user.id);
+    fetch("/api/ai/profile-insights", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        feature: "insights",
+        user,
+        activities,
+        donations: [],
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => setGivingPersonality(data))
+      .catch(() => {})
+      .finally(() => setPersonalityLoading(false));
+  }, [user]);
 
   if (!user) {
     return (
@@ -63,6 +93,33 @@ export function ProfilePage({ username }: ProfilePageProps) {
 
       {/* Profile Header */}
       <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
+
+      {/* AI Giving Personality */}
+      <div className="mt-4">
+        {personalityLoading ? (
+          <div className="animate-pulse flex items-center gap-2 rounded-full bg-gfm-bg px-4 py-2 w-fit mx-auto">
+            <div className="h-4 w-4 rounded bg-gray-200" />
+            <div className="h-3 w-40 rounded bg-gray-200" />
+          </div>
+        ) : givingPersonality ? (
+          <div className="flex items-center justify-center gap-2">
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border"
+              style={{
+                backgroundColor: `${givingPersonality.color}15`,
+                borderColor: `${givingPersonality.color}40`,
+                color: givingPersonality.color,
+              }}
+            >
+              <Brain className="h-3.5 w-3.5" />
+              {givingPersonality.type}
+            </span>
+            <span className="text-xs text-gfm-secondary">
+              {givingPersonality.description}
+            </span>
+          </div>
+        ) : null}
+      </div>
 
       {/* Personalize CTA (own profile only) */}
       {isOwnProfile && (

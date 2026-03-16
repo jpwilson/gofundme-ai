@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import {
   getCommunityBySlug,
   getLeaderboardByCommunitySlug,
@@ -20,8 +21,27 @@ interface CommunityPageProps {
 
 export function CommunityPage({ slug }: CommunityPageProps) {
   const [activeTab, setActiveTab] = useState("activity");
+  const [digest, setDigest] = useState<{ summary: string } | null>(null);
+  const [digestLoading, setDigestLoading] = useState(true);
+  const [digestOpen, setDigestOpen] = useState(false);
 
   const community = getCommunityBySlug(slug);
+
+  useEffect(() => {
+    if (!community) {
+      setDigestLoading(false);
+      return;
+    }
+    fetch("/api/ai/community-digest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ community }),
+    })
+      .then((r) => r.json())
+      .then((data) => setDigest(data))
+      .catch(() => {})
+      .finally(() => setDigestLoading(false));
+  }, [community]);
 
   if (!community) {
     return (
@@ -58,6 +78,42 @@ export function CommunityPage({ slug }: CommunityPageProps) {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <CommunityHeader community={community} followers={sampleFollowers} />
+
+      {/* AI Community Digest */}
+      <div className="mx-auto max-w-6xl px-4 mt-4">
+        {digestLoading ? (
+          <div className="animate-pulse rounded-lg border border-gfm-border bg-gfm-bg/30 p-3">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 rounded bg-gray-200" />
+              <div className="h-3 w-32 rounded bg-gray-200" />
+            </div>
+          </div>
+        ) : digest ? (
+          <div className="rounded-lg border border-gfm-border bg-gfm-bg/30">
+            <button
+              onClick={() => setDigestOpen(!digestOpen)}
+              className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gfm-dark hover:bg-gfm-bg/50 rounded-lg transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-gfm-green" />
+                View AI digest
+              </span>
+              {digestOpen ? (
+                <ChevronUp className="h-4 w-4 text-gfm-secondary" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-gfm-secondary" />
+              )}
+            </button>
+            {digestOpen && (
+              <div className="border-t border-gfm-border px-4 py-3">
+                <p className="text-sm leading-relaxed text-gfm-secondary whitespace-pre-line">
+                  {digest.summary}
+                </p>
+              </div>
+            )}
+          </div>
+        ) : null}
+      </div>
 
       {/* Leaderboard */}
       <CommunityLeaderboard entries={leaderboard} />

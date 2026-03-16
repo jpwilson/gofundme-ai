@@ -165,6 +165,8 @@ export function Navbar() {
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
             <NavDropdown label="About" items={aboutItems} />
+            <Link href="/docs" className="text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors px-3 py-2 rounded-lg hover:bg-gfm-bg">Docs</Link>
+            <Link href="/explore" className="text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors px-3 py-2 rounded-lg hover:bg-gfm-bg">Explore</Link>
             <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} />
             <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} />
           </div>
@@ -196,6 +198,7 @@ export function Navbar() {
             <MobileSection title="Donate" items={donateItems} />
             <MobileSection title="Fundraise" items={fundraiseItems} />
             <MobileSection title="About" items={aboutItems} />
+            <Link href="/docs" className="block py-3 text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors">Docs</Link>
             <MobileSection title="AI Ideation2" badge="JP" items={ai2IdeationItems} />
             <MobileSection title="AI Ideation" badge="JP" items={aiIdeationItems} />
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
