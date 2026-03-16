@@ -196,6 +196,7 @@ export function FundraiserPage({
 
           {/* AI Story Coach */}
           <div className="space-y-3">
+            <span id="tour-story-coach" />
             <div className="flex items-center gap-3">
               <button
                 onClick={handleGetStoryFeedback}

@@ -10,84 +10,72 @@ import {
 
 /* ─── Tour Steps ─── */
 const TOUR_STEPS = [
-  // Welcome
   {
     title: 'Welcome',
-    description: 'AI-enhanced versions of GoFundMe\'s three core pages — Fundraiser, Community, and Profile — plus AI tools that show where AI adds real value. Let\'s walk through it all.',
+    description: 'AI-enhanced versions of GoFundMe\'s three core pages — built the week they launched their Smart Fundraising Coach. Let\'s walk through what AI adds to each page.',
     path: '/',
     highlight: null,
     scrollTo: null,
   },
-  // ── Core Pages (the 3 deliverables) ──
   {
-    title: '1. Fundraiser Page',
-    description: 'A faithful recreation with AI enhancements: a trust badge where Claude scores fundraiser legitimacy, and sentiment analysis summarizing donor messages.',
+    title: '1. AI Trust Badge',
+    description: 'Claude evaluates this fundraiser\'s legitimacy — analyzing the description, organizer, and donation patterns — and scores its trustworthiness in real time.',
     path: '/f/la-wildfire-alerts-and-recovery',
-    highlight: 'See the AI trust badge next to the title',
+    highlight: 'See the trust score badge next to the title',
     scrollTo: 'tour-trust-badge',
   },
   {
-    title: '2. Community Page',
-    description: 'Community hub with activity feed, leaderboard, and campaigns. AI adds a collapsible digest — Claude summarizes all recent activity into a quick update.',
-    path: '/communities/watch-duty',
-    highlight: 'Open the AI digest',
-    scrollTo: 'tour-ai-digest',
-  },
-  {
-    title: '3. Profile Page',
-    description: 'User profile with highlights and causes. AI adds a giving personality badge — Claude classifies donors as Crisis Responder, Champion Giver, Steady Supporter, or Community Builder.',
-    path: '/u/janahan',
-    highlight: 'See the AI personality badge',
-    scrollTo: 'tour-ai-personality',
-  },
-  // ── AI Features ──
-  {
-    title: '4. AI Story Coach',
-    description: 'Deep campaign analysis — click "Story insights" to see Claude analyze narrative quality, suggest headline alternatives, and score photo engagement.',
+    title: '2. Story Coach + Share Generator',
+    description: 'Click "Get AI Story Feedback" for Claude\'s analysis of the campaign narrative. Click "Generate Share Messages" for ready-to-copy social media content.',
     path: '/f/la-wildfire-alerts-and-recovery',
-    highlight: 'Click "Story insights" to see AI analysis',
+    highlight: 'Try the AI buttons below the campaign story',
     scrollTo: 'tour-story-coach',
   },
   {
-    title: '5. AI Donor Insights',
-    description: 'Claude generates a full impact narrative of the donor\'s journey, giving personality with traits, and personalized fundraiser recommendations with match scores.',
+    title: '3. Smart Donation Amounts',
+    description: 'The donation sidebar now shows AI-suggested amounts — personalized based on the campaign\'s goal, category, and giving patterns. This mirrors GoFundMe Pro\'s Intelligent Ask Amounts.',
+    path: '/f/la-wildfire-alerts-and-recovery',
+    highlight: 'See the personalized amounts in the sidebar',
+    scrollTo: null,
+  },
+  {
+    title: '4. Community AI Digest',
+    description: 'Claude reads recent community activity and generates a weekly digest — key highlights, top contributors, trending campaigns. Drives repeat visits.',
+    path: '/communities/watch-duty',
+    highlight: 'Open the AI Community Digest',
+    scrollTo: 'tour-ai-digest',
+  },
+  {
+    title: '5. AI Giving Personality',
+    description: 'AI analyzes donation patterns to classify donors — Crisis Responder, Champion Giver, Steady Supporter, or Community Builder. Click "View AI Impact Story" for a full narrative.',
     path: '/u/janahan',
-    highlight: 'Read the AI-generated narrative',
-    scrollTo: 'tour-ai-narrative',
+    highlight: 'See the personality badge and impact story',
+    scrollTo: 'tour-ai-personality',
   },
   {
     title: '6. Fraud Detection',
-    description: 'Trust & safety dashboard with 6 detection rules. Switch to "Flagged" and click "Review" — Claude does a live trust analysis with signals and risk factors.',
+    description: 'A trust & safety dashboard with 6 detection rules. Click "Review" on any flagged campaign for a live Claude trust analysis with signals and risk factors.',
     path: '/fraud-detection',
     highlight: 'Click "Review" on a flagged campaign',
     scrollTo: null,
   },
   {
-    title: '7. Giving Agent',
-    description: 'Automated monthly giving — set a budget, pick causes, choose allocation strategy, and AI distributes donations across verified campaigns.',
-    path: '/giving-agent',
-    highlight: null,
-    scrollTo: null,
-  },
-  // ── Internal / Analytics ──
-  {
-    title: '8. AI Analytics & Costs',
-    description: 'Every AI call traced via LangFuse. See per-feature costs, scale projections (1K→1M users), and full development cost transparency.',
+    title: '7. AI Analytics & Costs',
+    description: 'Every AI call is traced via LangFuse. See per-feature costs, scale projections (1K→1M users), and full development cost transparency.',
     path: '/ai/analytics',
-    highlight: 'Try "Scale Projections" and "Development Costs" tabs',
+    highlight: 'Try the "Scale Projections" tab',
     scrollTo: null,
   },
-  // ── Polish ──
   {
-    title: '9. Product Explorer',
-    description: 'Interactive 3D graph (Three.js) showing how all 24 features connect — fundraisers, AI, infrastructure. Drag to rotate, click nodes for details.',
+    title: '8. 3D Product Explorer',
+    description: 'Interactive Three.js graph showing how all features connect. Drag to rotate, scroll to zoom, click nodes for details.',
     path: '/explore',
     highlight: 'Click any node to see connections',
     scrollTo: null,
   },
   {
-    title: '10. Documentation',
-    description: 'Full docs covering features, metrics rationale, architecture, and philosophy. Plus a chat agent with guardrails and 5 eval tests. Thanks for the tour!',
+    title: '9. Documentation',
+    description: 'Full docs mapping each AI feature to the GoFundMe business problem it solves. Architecture, cost projections, and metrics rationale.',
     path: '/docs',
     highlight: null,
     scrollTo: null,
@@ -116,7 +104,6 @@ const PAGE_LINKS: Record<string, { label: string; href: string }> = {
   '3d': { label: 'Product Explorer', href: '/explore' },
   graph: { label: 'Product Explorer', href: '/explore' },
   docs: { label: 'Documentation', href: '/docs' },
-  giving: { label: 'Giving Agent', href: '/giving-agent' },
   sentiment: { label: 'Fundraiser Page', href: '/f/la-wildfire-alerts-and-recovery' },
 };
 
