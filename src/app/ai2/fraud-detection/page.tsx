@@ -216,7 +216,7 @@ export default function FraudDetectionPage() {
     Object.fromEntries(DETECTION_RULES.map((r) => [r.id, r.enabled])),
   );
   const [feed, setFeed] = useState(MONITORING_FEED);
-  const [reviewResults, setReviewResults] = useState<Record<string, { loading: boolean; data: any | null }>>({});
+  const [reviewResults, setReviewResults] = useState<Record<string, { loading: boolean; data: { overallScore: number; label: string; signals: { name: string; status: string; signal?: string; weight?: string }[]; riskFactors: string[]; recommendation: string } | null }>>({});
 
   const handleReview = async (fundraiserId: string) => {
     const f = FLAGGED_FUNDRAISERS.find((item) => item.id === fundraiserId);
@@ -434,7 +434,10 @@ export default function FraudDetectionPage() {
               </div>
 
               {/* AI Review Expanded Panel */}
-              {reviewResults[f.id]?.data && (
+              {(() => {
+                const reviewData = reviewResults[f.id]?.data;
+                if (!reviewData) return null;
+                return (
                 <div className="mt-4 animate-in slide-in-from-top-2 border-t border-gfm-border bg-gfm-bg/50 rounded-b-xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-semibold text-gfm-dark">AI Deep Analysis</h4>
@@ -455,22 +458,22 @@ export default function FraudDetectionPage() {
                   {/* Score + Label */}
                   <div className="flex items-center gap-4">
                     <div
-                      className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold ${trustBg(reviewResults[f.id].data.overallScore)}`}
+                      className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold ${trustBg(reviewData.overallScore)}`}
                     >
-                      {reviewResults[f.id].data.overallScore}
+                      {reviewData.overallScore}
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-gfm-dark">{reviewResults[f.id].data.label}</p>
+                      <p className="text-lg font-semibold text-gfm-dark">{reviewData.label}</p>
                       <p className="text-xs text-gfm-secondary">AI Trust Score</p>
                     </div>
                   </div>
 
                   {/* Trust Signals */}
-                  {reviewResults[f.id].data.signals?.length > 0 && (
+                  {reviewData.signals?.length > 0 && (
                     <div>
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gfm-secondary">Trust Signals</p>
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        {reviewResults[f.id].data.signals.map((s: any, idx: number) => (
+                        {reviewData.signals.map((s, idx) => (
                           <div key={idx} className="flex items-center gap-2 rounded-lg border border-gfm-border bg-white px-3 py-2">
                             {s.status === 'pass' || s.status === 'positive' ? (
                               <CheckCircle2 size={16} className="flex-shrink-0 text-green-500" />
@@ -488,11 +491,11 @@ export default function FraudDetectionPage() {
                   )}
 
                   {/* Risk Factors */}
-                  {reviewResults[f.id].data.riskFactors?.length > 0 && (
+                  {reviewData.riskFactors?.length > 0 && (
                     <div>
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gfm-secondary">Risk Factors</p>
                       <ul className="list-disc space-y-1 pl-5">
-                        {reviewResults[f.id].data.riskFactors.map((risk: string, idx: number) => (
+                        {reviewData.riskFactors.map((risk: string, idx: number) => (
                           <li key={idx} className="text-sm text-gfm-dark">{risk}</li>
                         ))}
                       </ul>
@@ -500,14 +503,15 @@ export default function FraudDetectionPage() {
                   )}
 
                   {/* Recommendation */}
-                  {reviewResults[f.id].data.recommendation && (
+                  {reviewData.recommendation && (
                     <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
                       <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-700">Recommendation</p>
-                      <p className="text-sm text-amber-900">{reviewResults[f.id].data.recommendation}</p>
+                      <p className="text-sm text-amber-900">{reviewData.recommendation}</p>
                     </div>
                   )}
                 </div>
-              )}
+                );
+              })()}
             </div>
           ))}
         </div>

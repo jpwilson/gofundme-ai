@@ -206,8 +206,8 @@ function GraphNode({
     meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
   });
 
-  const handlePointerOver = useCallback((e: THREE.Event) => {
-    (e as any).stopPropagation();
+  const handlePointerOver = useCallback((e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
     setHovered(true);
     document.body.style.cursor = 'pointer';
   }, []);
@@ -217,8 +217,8 @@ function GraphNode({
     document.body.style.cursor = 'auto';
   }, []);
 
-  const handleClick = useCallback((e: THREE.Event) => {
-    (e as any).stopPropagation();
+  const handleClick = useCallback((e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
     onSelect(selected ? null : node);
   }, [node, selected, onSelect]);
 
@@ -314,16 +314,17 @@ function GraphEdge({
 }
 
 function AutoRotate({ enabled }: { enabled: boolean }) {
-  const { camera } = useThree();
+  const cameraRef = useRef(useThree().camera);
   const angleRef = useRef(0);
 
   useFrame((_, delta) => {
     if (!enabled) return;
+    const cam = cameraRef.current;
     angleRef.current += delta * 0.08;
-    const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
-    camera.position.x = Math.cos(angleRef.current) * radius;
-    camera.position.z = Math.sin(angleRef.current) * radius;
-    camera.lookAt(0, 0, 0);
+    const radius = Math.sqrt(cam.position.x ** 2 + cam.position.z ** 2);
+    cam.position.x = Math.cos(angleRef.current) * radius;
+    cam.position.z = Math.sin(angleRef.current) * radius;
+    cam.lookAt(0, 0, 0);
   });
 
   return null;
@@ -338,7 +339,7 @@ function Scene({
 }) {
   const [interacting, setInteracting] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const positions = useMemo(computePositions, []);
+  const positions = useMemo(() => computePositions(), []);
 
   const handleInteractionStart = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);

@@ -22,14 +22,25 @@ interface CommunityPageProps {
 export function CommunityPage({ slug }: CommunityPageProps) {
   const [activeTab, setActiveTab] = useState("activity");
   const [digest, setDigest] = useState<{ summary: string } | null>(null);
-  const [digestLoading, setDigestLoading] = useState(true);
+  const [digestLoading, setDigestLoading] = useState(() => !!getCommunityBySlug(slug));
   const [digestOpen, setDigestOpen] = useState(false);
 
   const community = getCommunityBySlug(slug);
 
+  const leaderboard = getLeaderboardByCommunitySlug(slug);
+
+  // Filter activities for this community
+  const communityActivities = community
+    ? allActivities.filter((a) => a.communityId === community.id)
+    : [];
+
+  // Filter fundraisers for this community
+  const communityFundraisers = community
+    ? allFundraisers.filter((f) => f.communityId === community.id)
+    : [];
+
   useEffect(() => {
     if (!community) {
-      setDigestLoading(false);
       return;
     }
     fetch("/api/ai/community-digest", {
@@ -55,7 +66,7 @@ export function CommunityPage({ slug }: CommunityPageProps) {
       })
       .catch(() => {})
       .finally(() => setDigestLoading(false));
-  }, [community]);
+  }, [community, communityActivities]);
 
   if (!community) {
     return (
@@ -69,18 +80,6 @@ export function CommunityPage({ slug }: CommunityPageProps) {
       </div>
     );
   }
-
-  const leaderboard = getLeaderboardByCommunitySlug(slug);
-
-  // Filter activities for this community
-  const communityActivities = allActivities.filter(
-    (a) => a.communityId === community.id
-  );
-
-  // Filter fundraisers for this community
-  const communityFundraisers = allFundraisers.filter(
-    (f) => f.communityId === community.id
-  );
 
   // Sample followers (use existing users as stand-ins)
   const sampleFollowers = users.map((u) => ({

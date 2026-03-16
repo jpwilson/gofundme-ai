@@ -1,99 +1,30 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Bell, Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
-interface NavDropdownProps {
-  label: string;
-  badge?: string;
-  items: { label: string; href: string; description?: string }[];
-  isActive?: boolean;
-}
-
-function NavDropdown({ label, badge, items, isActive }: NavDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setOpen(false), 150);
-  };
-
-  return (
-    <div
-      className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <button
-        className={`flex items-center gap-1 text-sm font-medium transition-colors px-3 py-2 rounded-lg ${
-          isActive
-            ? "text-pink-600 bg-pink-50"
-            : open
-              ? "text-gfm-green bg-gfm-light-green/40"
-              : "text-gfm-dark hover:text-gfm-green"
-        }`}
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
-      >
-        {label}
-        {badge && (
-          <span className="ml-1 rounded-full bg-gfm-green px-1.5 py-0.5 text-[10px] font-bold text-white leading-none uppercase tracking-wide">
-            {badge}
-          </span>
-        )}
-        <ChevronDown
-          className={`h-3.5 w-3.5 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 min-w-[220px] rounded-xl border border-gfm-border bg-white py-1.5 shadow-xl shadow-black/5">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block px-4 py-2.5 text-sm text-gfm-dark hover:bg-gfm-bg hover:text-gfm-green transition-colors"
-            >
-              {item.label}
-              {item.description && (
-                <span className="block text-xs text-gfm-secondary mt-0.5">
-                  {item.description}
-                </span>
-              )}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+const navLinks = [
+  { label: "Fundraisers", href: "/f/la-wildfire-alerts-and-recovery", match: "/f/" },
+  { label: "Communities", href: "/communities/watch-duty", match: "/communities/" },
+  { label: "Create", href: "/create", match: "/create" },
+  { label: "Docs", href: "/docs", match: "/docs" },
+];
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Determine which SINGLE nav item should be active.
-  // Priority: direct links first, then dropdowns with unique routes.
-  // Dropdowns that share hrefs with direct links (About→/docs) don't count.
   const getActiveNav = (): string | null => {
-    if (pathname.startsWith('/f/') || pathname.startsWith('/communities/') || pathname.startsWith('/u/')) return 'core';
-    if (pathname.startsWith('/ai/fundraiser') || pathname.startsWith('/ai/community') || pathname.startsWith('/ai/profile') || pathname.startsWith('/ai2/fraud') || pathname.startsWith('/giving-agent') || pathname.startsWith('/ai2/persona')) return 'aifeatures';
-    if (pathname.startsWith('/ai/analytics') || pathname.startsWith('/ai2/jira') || pathname.startsWith('/ai2/agent')) return 'internal';
-    if (pathname === '/docs') return 'docs';
-    if (pathname === '/explore') return 'explore';
+    for (const link of navLinks) {
+      if (pathname.startsWith(link.match)) return link.match;
+    }
     return null;
   };
   const activeNav = getActiveNav();
 
-  // Close mobile menu on route change / resize
+  // Close mobile menu on resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setMobileMenuOpen(false);
@@ -102,36 +33,11 @@ export function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Core 3 pages — the primary deliverable
-  const corePageItems = [
-    { label: "Fundraiser Page", href: "/f/la-wildfire-alerts-and-recovery", description: "AI trust badge & sentiment analysis" },
-    { label: "Community Page", href: "/communities/watch-duty", description: "AI digest & campaign discovery" },
-    { label: "Profile Page", href: "/u/janahan", description: "AI giving personality badge" },
-  ];
-
-  // AI-enhanced versions of the 3 pages + AI tools
-  const aiFeatureItems = [
-    { label: "AI Story Coach", href: "/ai/fundraiser", description: "Campaign narrative analysis & suggestions" },
-    { label: "AI Community", href: "/ai/community", description: "Smart digests & campaign discovery" },
-    { label: "AI Donor Insights", href: "/ai/profile", description: "Giving personality & recommendations" },
-    { label: "Fraud Detection", href: "/ai2/fraud-detection", description: "Trust scoring & anomaly detection" },
-    { label: "Giving Agent", href: "/giving-agent", description: "Automated monthly giving by AI" },
-    { label: "Persona Targeting", href: "/ai2/persona-recommendations", description: "Donor persona & outreach strategy" },
-  ];
-
-  // Internal / ops tools
-  const internalItems = [
-    { label: "AI Analytics & Costs", href: "/ai/analytics", description: "LangFuse, scale projections & dev costs" },
-    { label: "Jira Agent", href: "/ai2/jira-agent", description: "AI-powered engineering workflows" },
-    { label: "Agent Observability", href: "/ai2/agent-observability", description: "Agent behavior tracking & traces" },
-  ];
-
-
   return (
     <header className="sticky top-0 z-50 border-b border-gfm-border bg-white/95 backdrop-blur-sm">
       <nav className="mx-auto flex h-[64px] max-w-7xl items-center justify-between px-4 lg:px-8">
-        {/* Left section */}
-        <div className="flex items-center gap-1 lg:gap-1">
+        {/* Left section: hamburger (mobile) + logo */}
+        <div className="flex items-center gap-2">
           <button
             className="p-2 text-gfm-dark hover:text-gfm-green transition-colors lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -144,45 +50,37 @@ export function Navbar() {
             )}
           </button>
           <Link
-            href="/search"
-            className="p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
+            href="/"
+            className="logo-heart flex items-center gap-0 text-[22px] font-bold tracking-tight text-gfm-green select-none"
           >
-            <Search className="h-5 w-5" />
+            <span>gofundme</span>
+            <svg
+              className="heart-icon ml-0.5 h-5 w-5 text-gfm-green"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
           </Link>
-          <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="Core Pages" items={corePageItems} isActive={activeNav === 'core'} />
-          </div>
         </div>
 
-        {/* Center logo */}
-        <Link
-          href="/"
-          className="logo-heart flex items-center gap-0 text-[22px] font-bold tracking-tight text-gfm-green select-none"
-        >
-          <span>gofundme</span>
-          <svg
-            className="heart-icon ml-0.5 h-5 w-5 text-gfm-green"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        </Link>
-
-        {/* Right section */}
+        {/* Right section: nav links + sign in + CTA */}
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="AI Features" items={aiFeatureItems} isActive={activeNav === 'aifeatures'} />
-            <NavDropdown label="Internal" items={internalItems} isActive={activeNav === 'internal'} />
-            <Link href="/docs" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${activeNav === 'docs' ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Docs</Link>
-            <Link href="/explore" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${activeNav === 'explore' ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Explore</Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.match}
+                href={link.href}
+                className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${
+                  activeNav === link.match
+                    ? "text-pink-600 bg-pink-50"
+                    : "text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
-          <button
-            className="relative p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
-            aria-label="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-          </button>
           <Link
             href="/sign-in"
             className="hidden text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors lg:block px-3 py-2 rounded-lg hover:bg-gfm-bg"
@@ -202,11 +100,19 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="border-t border-gfm-border bg-white lg:hidden animate-in slide-in-from-top-2 duration-200">
           <div className="mx-auto max-w-7xl space-y-1 px-4 py-4">
-            <MobileSection title="Core Pages" items={corePageItems} />
-            <MobileSection title="AI Features" items={aiFeatureItems} />
-            <MobileSection title="Internal" items={internalItems} />
-            <Link href="/docs" className="block py-3 text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors">Docs</Link>
-            <Link href="/explore" className="block py-3 text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors">Explore</Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.match}
+                href={link.href}
+                className={`block py-3 text-sm font-medium transition-colors ${
+                  activeNav === link.match
+                    ? "text-pink-600"
+                    : "text-gfm-dark hover:text-gfm-green"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
               <Link
                 href="/sign-in"
@@ -225,53 +131,5 @@ export function Navbar() {
         </div>
       )}
     </header>
-  );
-}
-
-function MobileSection({
-  title,
-  badge,
-  items,
-}: {
-  title: string;
-  badge?: string;
-  items: { label: string; href: string }[];
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div>
-      <button
-        className="flex w-full items-center justify-between py-3 text-sm font-medium text-gfm-dark"
-        onClick={() => setOpen(!open)}
-      >
-        <span className="flex items-center gap-2">
-          {title}
-          {badge && (
-            <span className="rounded-full bg-gfm-green px-1.5 py-0.5 text-[10px] font-bold text-white leading-none uppercase tracking-wide">
-              {badge}
-            </span>
-          )}
-        </span>
-        <ChevronDown
-          className={`h-4 w-4 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      {open && (
-        <div className="ml-4 space-y-1 pb-2">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block py-2 text-sm text-gfm-secondary hover:text-gfm-green transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }

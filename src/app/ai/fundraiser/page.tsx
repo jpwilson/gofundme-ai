@@ -78,14 +78,13 @@ export default function SmartFundraiserPage() {
   const [viewers, setViewers] = useState(recentViewers);
 
   // AI state
-  const [storyCoach, setStoryCoach] = useState<{ loading: boolean; data: string | null; error: boolean }>({ loading: false, data: null, error: false });
-  const [sentiment, setSentiment] = useState<{ loading: boolean; data: any | null; error: boolean }>({ loading: false, data: null, error: false });
-  const [trustScore, setTrustScore] = useState<{ loading: boolean; data: any | null; error: boolean }>({ loading: false, data: null, error: false });
+  const [storyCoach, setStoryCoach] = useState<{ loading: boolean; data: string | null; error: boolean }>({ loading: true, data: null, error: false });
+  const [sentiment, setSentiment] = useState<{ loading: boolean; data: { score: number; label: string; summary: string; themes?: string[] } | null; error: boolean }>({ loading: true, data: null, error: false });
+  const [trustScore, setTrustScore] = useState<{ loading: boolean; data: { overallScore: number; label: string } | null; error: boolean }>({ loading: true, data: null, error: false });
 
   // Fetch AI data on mount
   useEffect(() => {
     // Story coach
-    setStoryCoach((s) => ({ ...s, loading: true }));
     fetch('/api/ai/story-coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -104,7 +103,6 @@ export default function SmartFundraiserPage() {
     // Sentiment
     const messages = allDonations.filter((d) => d.message).map((d) => d.message as string);
     if (messages.length > 0) {
-      setSentiment((s) => ({ ...s, loading: true }));
       fetch('/api/ai/sentiment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,7 +114,6 @@ export default function SmartFundraiserPage() {
     }
 
     // Trust score
-    setTrustScore((s) => ({ ...s, loading: true }));
     fetch('/api/ai/trust-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

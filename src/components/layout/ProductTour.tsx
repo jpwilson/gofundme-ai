@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, ArrowLeft, X, ExternalLink, MapPin } from 'lucide-react';
 
@@ -57,23 +57,19 @@ const TOUR_STEPS = [
 
 const STORAGE_KEY = 'gfm-tour-completed';
 
+const emptySubscribe = () => () => {};
+
 export function ProductTour() {
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [shouldPulse, setShouldPulse] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [tourCompleted, setTourCompleted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const completed = localStorage.getItem(STORAGE_KEY);
-    if (!completed) {
-      setShouldPulse(true);
-    }
-  }, []);
+  const shouldPulse = isClient && !tourCompleted && !localStorage.getItem(STORAGE_KEY);
 
   const markCompleted = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, 'true');
-    setShouldPulse(false);
+    setTourCompleted(true);
   }, []);
 
   const openTour = () => {
@@ -100,7 +96,7 @@ export function ProductTour() {
     }
   };
 
-  if (!mounted) return null;
+  if (!isClient) return null;
 
   const step = TOUR_STEPS[currentStep];
   const isLastStep = currentStep === TOUR_STEPS.length - 1;

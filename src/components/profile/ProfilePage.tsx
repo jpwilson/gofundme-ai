@@ -32,11 +32,10 @@ export function ProfilePage({ username }: ProfilePageProps) {
     description: string;
     color: string;
   } | null>(null);
-  const [personalityLoading, setPersonalityLoading] = useState(true);
+  const [personalityLoading, setPersonalityLoading] = useState(!!user);
 
   useEffect(() => {
     if (!user) {
-      setPersonalityLoading(false);
       return;
     }
     const activities = getActivitiesByUserId(user.id);

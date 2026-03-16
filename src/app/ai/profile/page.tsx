@@ -83,9 +83,9 @@ const networkDonors: { name: string; sharedCauses: number; avatar: string | null
 
 export default function SmartProfilePage() {
   const [animated, setAnimated] = useState(false);
-  const [aiPersonality, setAiPersonality] = useState<{ loading: boolean; data: any | null }>({ loading: true, data: null });
+  const [aiPersonality, setAiPersonality] = useState<{ loading: boolean; data: { type?: string; description?: string; traits?: string[] } | null }>({ loading: true, data: null });
   const [aiNarrative, setAiNarrative] = useState<{ loading: boolean; data: string | null }>({ loading: true, data: null });
-  const [aiRecommendations, setAiRecommendations] = useState<{ loading: boolean; data: any[] | null }>({ loading: true, data: null });
+  const [aiRecommendations, setAiRecommendations] = useState<{ loading: boolean; data: { slug: string; title: string; urgency: string; reason: string; matchScore?: number }[] | null }>({ loading: true, data: null });
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 100);

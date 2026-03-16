@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import type { CauseType } from '@/lib/types';
 import { causes } from '@/lib/data/mock';
 

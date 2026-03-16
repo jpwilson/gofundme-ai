@@ -125,6 +125,23 @@ Over the past year, you've made a meaningful difference in **3 communities** thr
     ],
   }),
 
+  share_content: JSON.stringify({
+    "tweet": "Help LA families rebuild after the wildfires. Every dollar supports real-time alerts and direct aid. Please share \ud83d\ude4f {url}",
+    "instagram": "I\u2019m supporting wildfire recovery in LA \ud83d\udd25\u2764\ufe0f This fund provides real-time alerts through Watch Duty and direct aid to displaced families. Every donation matters.\n\nLink in bio to donate \u2014 even $25 helps.\n\n#GoFundMe #LAWildfires #CommunitySupport #DisasterRelief",
+    "email_subject": "Can you help LA wildfire families rebuild?",
+    "email_body": "Hi,\n\nI wanted to share a fundraiser that\u2019s making a real difference for families affected by the LA wildfires. The fund supports real-time wildfire alert infrastructure through Watch Duty and provides direct aid to displaced families.\n\nThey\u2019ve already raised over $2,100 toward their $3,000 goal, but they still need help. Even a small donation makes a difference.\n\nHere\u2019s the link: {url}\n\nThanks for considering it.",
+    "sms": "Hey \u2014 sharing this fundraiser for LA wildfire recovery. They\u2019re providing real-time alerts and helping displaced families. If you can chip in: {url}"
+  }),
+
+  smart_asks: JSON.stringify({
+    "amounts": [
+      {"amount": 2500, "label": "Provides emergency supplies for one day"},
+      {"amount": 5000, "label": "Most common donation amount"},
+      {"amount": 15000, "label": "Funds temporary housing for a week"},
+      {"amount": 50000, "label": "Top 5% of donors \u2014 major impact"}
+    ]
+  }),
+
   fundraiser_recommendations: JSON.stringify({
     recommendations: [
       {

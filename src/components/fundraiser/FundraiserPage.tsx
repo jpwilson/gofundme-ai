@@ -43,7 +43,9 @@ export function FundraiserPage({
   const [trustScore, setTrustScore] = useState<TrustScoreData | null>(null);
   const [trustLoading, setTrustLoading] = useState(true);
   const [sentiment, setSentiment] = useState<SentimentData | null>(null);
-  const [sentimentLoading, setSentimentLoading] = useState(true);
+  const [sentimentLoading, setSentimentLoading] = useState(
+    () => donations.some((d) => !!d.message)
+  );
 
   useEffect(() => {
     fetch("/api/ai/trust-score", {
@@ -88,8 +90,6 @@ export function FundraiserPage({
         })
         .catch(() => {})
         .finally(() => setSentimentLoading(false));
-    } else {
-      setSentimentLoading(false);
     }
   }, [fundraiser, donations]);
 
