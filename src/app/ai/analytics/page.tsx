@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState, useEffect, useCallback } from 'react';
 import { AI_FEATURES, PRICING } from '@/lib/ai/types';
 import { Sparkles, BarChart3, DollarSign, Activity, X, TrendingUp, Users, Zap, Eye } from 'lucide-react';
@@ -85,7 +87,7 @@ export default function AIAnalyticsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <><BackToHome /><div className="mx-auto max-w-6xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gfm-dark flex items-center gap-3">
@@ -502,6 +504,6 @@ export default function AIAnalyticsPage() {
           </div>
         </div>
       )}
-    </div>
+    </div></>
   );
 }

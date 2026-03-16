@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -98,6 +100,7 @@ export default function GivingAgentPage() {
 
   return (
     <div>
+      <BackToHome />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div

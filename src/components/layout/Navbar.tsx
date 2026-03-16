@@ -86,8 +86,10 @@ export function Navbar() {
   const getActiveNav = (): string | null => {
     if (pathname === '/docs') return 'docs';
     if (pathname === '/explore') return 'explore';
-    if (pathname.startsWith('/ai2/') || pathname.startsWith('/giving-agent')) return 'ai2';
-    if (pathname.startsWith('/ai/')) return 'ai';
+    // AI Ideation now contains most AI features
+    if (pathname.startsWith('/ai/') || pathname.startsWith('/ai2/fraud-detection') || pathname.startsWith('/ai2/persona') || pathname.startsWith('/giving-agent')) return 'ai';
+    // AI Ideation2 is just Jira + Observability
+    if (pathname.startsWith('/ai2/')) return 'ai2';
     if (pathname.startsWith('/f/') || pathname.startsWith('/communities/') || pathname.startsWith('/u/')) return 'core';
     if (pathname === '/search') return 'donate';
     if (pathname === '/create') return 'fundraise';
@@ -121,19 +123,19 @@ export function Navbar() {
     { label: "GitHub", href: "https://github.com/jpwilson/gofundme-ai" },
   ];
 
-  const ai2IdeationItems = [
-    { label: "Fraud Detection", href: "/ai2/fraud-detection", description: "Anomaly detection & trust scores" },
-    { label: "Jira Agent", href: "/ai2/jira-agent", description: "AI-powered engineering workflows" },
-    { label: "Persona Recommendations", href: "/ai2/persona-recommendations", description: "Social media donor targeting" },
-    { label: "Agent Observability", href: "/ai2/agent-observability", description: "Agent behavior tracking & traces" },
+  const aiIdeationItems = [
+    { label: "AI Story Coach", href: "/ai/fundraiser", description: "Campaign narrative analysis & suggestions" },
+    { label: "AI Community", href: "/ai/community", description: "Smart digests & campaign discovery" },
+    { label: "AI Donor Insights", href: "/ai/profile", description: "Giving personality & recommendations" },
+    { label: "Fraud Detection", href: "/ai2/fraud-detection", description: "Trust scoring & anomaly detection" },
     { label: "Giving Agent", href: "/giving-agent", description: "Automated monthly giving by AI" },
+    { label: "Persona Targeting", href: "/ai2/persona-recommendations", description: "Donor persona & outreach strategy" },
+    { label: "AI Analytics", href: "/ai/analytics", description: "Costs, scale & LangFuse observability" },
   ];
 
-  const aiIdeationItems = [
-    { label: "AI Fundraiser", href: "/ai/fundraiser", description: "Story coach, sentiment & trust AI" },
-    { label: "AI Community", href: "/ai/community", description: "Smart digests & cause matching" },
-    { label: "AI Profile", href: "/ai/profile", description: "Giving insights & recommendations" },
-    { label: "AI Analytics", href: "/ai/analytics", description: "Costs, scale & observability" },
+  const ai2IdeationItems = [
+    { label: "Jira Agent", href: "/ai2/jira-agent", description: "AI-powered engineering workflows" },
+    { label: "Agent Observability", href: "/ai2/agent-observability", description: "Agent behavior tracking & traces" },
   ];
 
 

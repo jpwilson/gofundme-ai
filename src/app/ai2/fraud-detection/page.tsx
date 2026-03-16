@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState, useEffect } from 'react';
 import {
   Shield,
@@ -286,7 +288,7 @@ export default function FraudDetectionPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <><BackToHome /><div className="mx-auto max-w-6xl px-4 py-8">
       {/* Header */}
       <div className="mb-8 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gfm-green text-white">
@@ -597,6 +599,6 @@ export default function FraudDetectionPage() {
           </div>
         </div>
       )}
-    </div>
+    </div></>
   );
 }

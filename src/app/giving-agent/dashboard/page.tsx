@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ProgressCircle } from '@/components/ui/ProgressCircle';
@@ -116,6 +118,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[var(--gfm-bg)]">
+      <BackToHome />
       {/* Header */}
       <div
         className="relative overflow-hidden pb-28"

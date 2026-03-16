@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -141,6 +143,7 @@ export default function SetupPage() {
 
   return (
     <div className="min-h-screen bg-[var(--gfm-bg)]">
+      <BackToHome />
       {/* Header */}
       <div className="border-b border-[var(--gfm-border)] bg-white">
         <div className="mx-auto max-w-3xl px-4 py-4">

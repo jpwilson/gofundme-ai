@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState } from 'react';
 import {
   Activity, Brain, GitBranch, BarChart3, AlertTriangle, CheckCircle2,
@@ -172,7 +174,7 @@ export default function AgentObservabilityPage() {
   const maxDaily = Math.max(...DAILY_TRACES);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <><BackToHome /><div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gfm-dark">Agent Observability</h1>
         <p className="mt-1 text-sm text-gfm-secondary">Interpret agent behavior, trace decisions, and detect anomalous patterns.</p>
@@ -395,6 +397,6 @@ export default function AgentObservabilityPage() {
           </div>
         </div>
       )}
-    </div>
+    </div></>
   );
 }

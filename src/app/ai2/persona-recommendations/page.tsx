@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState } from 'react';
 import {
   Users, Target, BarChart3, ChevronDown, ChevronUp,
@@ -228,7 +230,7 @@ export default function PersonaRecommendationsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <><BackToHome /><div className="mx-auto max-w-6xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gfm-dark">Persona Recommendations</h1>
@@ -548,6 +550,6 @@ export default function PersonaRecommendationsPage() {
           </div>
         </div>
       )}
-    </div>
+    </div></>
   );
 }

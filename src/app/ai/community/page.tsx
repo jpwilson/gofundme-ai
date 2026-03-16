@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
@@ -135,6 +137,7 @@ export default function SmartCommunityPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <BackToHome />
       {/* Community Hero */}
       <div className="relative bg-gradient-to-br from-gfm-dark via-gray-900 to-gray-800 text-white">
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { users, getActivitiesByUserId, donations, fundraisers, causes } from '@/lib/data/mock';
@@ -132,6 +134,7 @@ export default function SmartProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <BackToHome />
       {/* Cover + Profile Header */}
       <div className="relative">
         <div className="h-48 overflow-hidden">

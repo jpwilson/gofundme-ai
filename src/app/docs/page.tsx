@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import Link from 'next/link';
 import {
   Heart,
@@ -145,6 +147,7 @@ function Divider() {
 export default function DocsPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-white via-gfm-bg/30 to-white">
+      <BackToHome />
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(2,173,73,0.08),transparent_60%)]" />

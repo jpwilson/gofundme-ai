@@ -1,5 +1,7 @@
 'use client';
 
+import { BackToHome } from '@/components/ui/BackToHome';
+
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { fundraisers, getDonationsByFundraiserId } from '@/lib/data/mock';
@@ -148,7 +150,7 @@ export default function SmartFundraiserPage() {
   const [daysSinceUpdate] = useState(() => Math.floor((Date.now() - new Date(fundraiser.updatedAt).getTime()) / (1000 * 60 * 60 * 24)));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
+    <><BackToHome /><div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
       {/* Title */}
       <h1 className="mb-2 text-2xl font-bold text-gfm-dark md:text-3xl leading-tight">
         {fundraiser.title}
@@ -548,6 +550,6 @@ export default function SmartFundraiserPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div></>
   );
 }
