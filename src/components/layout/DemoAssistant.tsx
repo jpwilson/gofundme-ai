@@ -361,18 +361,23 @@ export function DemoAssistant() {
               <h3 className="text-lg font-bold text-gfm-dark">{step.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-gfm-secondary">{step.description}</p>
               {step.highlight && (
-                <button
-                  onClick={() => scrollToTarget(step.scrollTo)}
-                  className={`mt-3 w-full flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200/50 px-3 py-2 text-left transition-colors ${
-                    step.scrollTo ? 'hover:bg-amber-100 cursor-pointer' : 'cursor-default'
-                  }`}
-                >
-                  <MapPin className="h-3.5 w-3.5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-xs text-amber-800">
-                    {step.highlight}
-                    {step.scrollTo && <ArrowRight className="h-3 w-3 inline ml-1 text-amber-600" />}
-                  </span>
-                </button>
+                step.scrollTo ? (
+                  <button
+                    onClick={() => scrollToTarget(step.scrollTo)}
+                    className="mt-3 w-full flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200/50 px-3 py-2 text-left transition-colors hover:bg-amber-100 cursor-pointer"
+                  >
+                    <MapPin className="h-3.5 w-3.5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-xs text-amber-800">
+                      {step.highlight}
+                      <ArrowRight className="h-3 w-3 inline ml-1 text-amber-600" />
+                    </span>
+                  </button>
+                ) : (
+                  <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200/50 px-3 py-2">
+                    <MapPin className="h-3.5 w-3.5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-xs text-amber-800">{step.highlight}</span>
+                  </div>
+                )
               )}
             </div>
 

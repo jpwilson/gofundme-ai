@@ -56,22 +56,36 @@ export function FundraiserPage({
       }),
     })
       .then((r) => r.json())
-      .then((data) => setTrustScore(data))
+      .then((json) => {
+        const parsed = json?.data?.parsed;
+        if (parsed?.overallScore != null) {
+          setTrustScore({ score: parsed.overallScore, label: parsed.label || '' });
+        }
+      })
       .catch(() => {})
       .finally(() => setTrustLoading(false));
 
-    const messages = donations
+    const donorMessages = donations
       .map((d) => d.message)
       .filter((m): m is string => !!m);
 
-    if (messages.length > 0) {
+    if (donorMessages.length > 0) {
       fetch("/api/ai/sentiment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages: donorMessages }),
       })
         .then((r) => r.json())
-        .then((data) => setSentiment(data))
+        .then((json) => {
+          const parsed = json?.data?.parsed;
+          if (parsed) {
+            setSentiment({
+              overall: parsed.label || parsed.overall || 'Positive',
+              summary: parsed.summary || '',
+              themes: Array.isArray(parsed.themes) ? parsed.themes.map((t: { theme?: string } | string) => typeof t === 'string' ? t : t.theme || '') : [],
+            });
+          }
+        })
         .catch(() => {})
         .finally(() => setSentimentLoading(false));
     } else {
