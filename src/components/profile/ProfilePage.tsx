@@ -95,7 +95,7 @@ export function ProfilePage({ username }: ProfilePageProps) {
       <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
 
       {/* AI Giving Personality */}
-      <div className="mt-4">
+      <div id="tour-ai-personality" className="mt-4">
         {personalityLoading ? (
           <div className="animate-pulse flex items-center gap-2 rounded-full bg-gfm-bg px-4 py-2 w-fit mx-auto">
             <div className="h-4 w-4 rounded bg-gray-200" />

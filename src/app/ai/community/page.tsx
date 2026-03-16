@@ -322,7 +322,7 @@ export default function SmartCommunityPage() {
             </div>
 
             {/* Weekly Digest */}
-            <div className="rounded-xl border border-transparent bg-gradient-to-br from-purple-50 via-white to-blue-50 p-[1px]">
+            <div id="tour-weekly-digest" className="rounded-xl border border-transparent bg-gradient-to-br from-purple-50 via-white to-blue-50 p-[1px]">
               <div className="rounded-[11px] bg-white p-4" style={{ background: 'linear-gradient(135deg, rgba(245,243,255,0.6) 0%, rgba(255,255,255,1) 40%, rgba(239,246,255,0.6) 100%)' }}>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-semibold text-gfm-dark uppercase tracking-wide flex items-center gap-1.5">

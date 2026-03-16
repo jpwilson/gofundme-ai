@@ -89,7 +89,7 @@ export function CommunityPage({ slug }: CommunityPageProps) {
             </div>
           </div>
         ) : digest ? (
-          <div className="rounded-lg border border-gfm-border bg-gfm-bg/30">
+          <div id="tour-ai-digest" className="rounded-lg border border-gfm-border bg-gfm-bg/30">
             <button
               onClick={() => setDigestOpen(!digestOpen)}
               className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gfm-dark hover:bg-gfm-bg/50 rounded-lg transition-colors"

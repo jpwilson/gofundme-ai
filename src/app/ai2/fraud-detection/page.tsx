@@ -382,7 +382,7 @@ export default function FraudDetectionPage() {
       {/* Flagged Tab                                                       */}
       {/* ----------------------------------------------------------------- */}
       {activeTab === 'flagged' && (
-        <div className="space-y-4">
+        <div id="tour-fraud-flagged" className="space-y-4">
           {FLAGGED_FUNDRAISERS.map((f) => (
             <div key={f.id} className="rounded-xl border border-gfm-border bg-white p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">

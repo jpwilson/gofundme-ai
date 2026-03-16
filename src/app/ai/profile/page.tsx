@@ -182,7 +182,7 @@ export default function SmartProfilePage() {
         )}
 
         {/* Personality Description */}
-        <div className="rounded-xl bg-gradient-to-r from-gfm-bg to-white border border-gfm-border p-4 mb-8">
+        <div id="tour-ai-narrative" className="rounded-xl bg-gradient-to-r from-gfm-bg to-white border border-gfm-border p-4 mb-8">
           {aiNarrative.loading ? (
             <div className="space-y-2">
               <div className="h-3 bg-gray-200 rounded animate-pulse w-full" />

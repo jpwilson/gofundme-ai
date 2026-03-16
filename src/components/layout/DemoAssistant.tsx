@@ -15,66 +15,84 @@ const TOUR_STEPS = [
     description: 'Welcome to the GoFundMe AI exploration! This guided tour will walk you through each feature — navigating you to the actual pages so you can see everything live.',
     path: '/',
     highlight: null,
+    scrollTo: null,
   },
   {
-    title: 'Fundraiser Page',
-    description: 'This is the core fundraiser page with AI-powered trust badge and sentiment analysis on donor messages. Scroll down to see the AI trust score and donor sentiment summary.',
+    title: 'Fundraiser Page — AI Trust',
+    description: 'The core fundraiser page includes an AI trust badge — Claude evaluates the fundraiser and scores its trustworthiness in real time.',
     path: '/f/la-wildfire-alerts-and-recovery',
-    highlight: 'Look for the green/amber trust badge near the title',
+    highlight: 'See the trust badge next to the title',
+    scrollTo: 'tour-trust-badge',
+  },
+  {
+    title: 'Fundraiser Page — Sentiment',
+    description: 'Donor messages are analyzed by AI for sentiment. Scroll down to see the overall mood, summary, and top themes extracted from real messages.',
+    path: '/f/la-wildfire-alerts-and-recovery',
+    highlight: 'View the donor sentiment summary',
+    scrollTo: 'tour-sentiment',
   },
   {
     title: 'AI Story Coach',
     description: 'This enhanced fundraiser page adds AI story coaching — click "Story insights" to see real Claude analysis of the campaign narrative, plus photo tips and headline suggestions.',
     path: '/ai/fundraiser',
-    highlight: 'Click "Story insights" next to Campaign Story',
+    highlight: 'Click "Story insights" to see AI analysis',
+    scrollTo: 'tour-story-coach',
   },
   {
-    title: 'Community Page',
-    description: 'The community page features an AI-generated weekly digest. Look for the collapsible "AI digest" section below the header.',
+    title: 'Community Page — AI Digest',
+    description: 'The community page features an AI-generated digest. Click below to see it — Claude summarizes all recent community activity into a concise update.',
     path: '/communities/watch-duty',
-    highlight: 'Look for the "View AI digest" button',
+    highlight: 'Open the AI digest',
+    scrollTo: 'tour-ai-digest',
   },
   {
     title: 'AI Community Intelligence',
     description: 'The enhanced community page adds smart campaign discovery with urgency tags, momentum signals, and an AI weekly digest in the sidebar.',
     path: '/ai/community',
-    highlight: 'Scroll down to see "WEEKLY DIGEST" in the sidebar',
+    highlight: 'See the Weekly Digest in the sidebar',
+    scrollTo: 'tour-weekly-digest',
   },
   {
-    title: 'Profile Page',
-    description: 'User profiles now show an AI-generated giving personality badge. The AI analyzes donation patterns to determine your giving style.',
+    title: 'Profile Page — AI Personality',
+    description: 'AI analyzes donation patterns to determine a giving personality — Crisis Responder, Champion Giver, Steady Supporter, or Community Builder.',
     path: '/u/janahan',
-    highlight: 'Look for the AI personality badge below the profile header',
+    highlight: 'See the AI personality badge',
+    scrollTo: 'tour-ai-personality',
   },
   {
     title: 'AI Donor Insights',
-    description: 'The enhanced profile generates a full AI impact narrative, giving personality analysis, and personalized fundraiser recommendations.',
+    description: 'The enhanced profile generates a full AI impact narrative — a personalized story of the donor\'s giving journey, written by Claude.',
     path: '/ai/profile',
-    highlight: 'See the "AI-powered" narrative section',
+    highlight: 'Read the AI-generated narrative',
+    scrollTo: 'tour-ai-narrative',
   },
   {
     title: 'Fraud Detection',
-    description: 'An AI trust & safety dashboard. Click "Review" on any flagged fundraiser to trigger a real-time Claude trust analysis with detailed signals.',
+    description: 'An AI trust & safety dashboard. Switch to the "Flagged" tab and click "Review" on any campaign to trigger a real-time Claude trust analysis.',
     path: '/ai2/fraud-detection',
-    highlight: 'Click the "Review" button on any flagged campaign',
+    highlight: 'Click "Review" on a flagged campaign',
+    scrollTo: null,
   },
   {
     title: 'AI Analytics & Costs',
-    description: 'Every AI call is tracked via LangFuse — see real costs, token usage, and scale projections from 1K to 1M users. Check the "Scale Projections" tab.',
+    description: 'Every AI call is tracked via LangFuse — see real costs, token usage, and scale projections from 1K to 1M users.',
     path: '/ai/analytics',
     highlight: 'Try the "Scale Projections" and "Feature Costs" tabs',
+    scrollTo: null,
   },
   {
     title: 'Product Explorer',
     description: 'An interactive 3D graph built with Three.js showing how all 24 features connect. Drag to rotate, scroll to zoom, click nodes for details.',
     path: '/explore',
     highlight: 'Click any node to see how it connects',
+    scrollTo: null,
   },
   {
     title: 'Documentation',
     description: 'The docs page explains everything — what was built, which metrics are captured and why, the architecture, and the philosophy behind the project.',
     path: '/docs',
     highlight: null,
+    scrollTo: null,
   },
 ];
 
@@ -139,6 +157,7 @@ export function DemoAssistant() {
   const [tourStep, setTourStep] = useState(0);
   const [shouldPulse, setShouldPulse] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const startPathRef = useRef<string | null>(null);
 
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
@@ -165,6 +184,29 @@ export function DemoAssistant() {
     setShouldPulse(false);
   }, []);
 
+  /* Scroll to element after a short delay (wait for page render) */
+  const scrollToTarget = useCallback((elementId: string | null) => {
+    if (!elementId) return;
+    // Try a few times with increasing delays to handle page transitions
+    const attempts = [300, 600, 1200];
+    attempts.forEach((delay) => {
+      setTimeout(() => {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Brief highlight flash
+          el.style.outline = '2px solid #02a95c';
+          el.style.outlineOffset = '4px';
+          el.style.borderRadius = '8px';
+          el.style.transition = 'outline-color 1.5s ease-out';
+          setTimeout(() => {
+            el.style.outlineColor = 'transparent';
+          }, 1500);
+        }
+      }, delay);
+    });
+  }, []);
+
   /* Tour navigation */
   const goToStep = (step: number) => {
     setTourStep(step);
@@ -172,14 +214,16 @@ export function DemoAssistant() {
     if (target.path && target.path !== pathname) {
       router.push(target.path);
     }
+    // Scroll to target element after page loads
+    scrollToTarget(target.scrollTo);
   };
 
   const nextStep = () => {
     if (tourStep < TOUR_STEPS.length - 1) {
       goToStep(tourStep + 1);
     } else {
-      setMode('closed');
-      markCompleted();
+      // Tour finished — return to where we started
+      finishTour();
     }
   };
 
@@ -187,9 +231,17 @@ export function DemoAssistant() {
     if (tourStep > 0) goToStep(tourStep - 1);
   };
 
-  const closeTour = () => {
+  const finishTour = () => {
     setMode('closed');
     markCompleted();
+    if (startPathRef.current && startPathRef.current !== pathname) {
+      router.push(startPathRef.current);
+    }
+    startPathRef.current = null;
+  };
+
+  const closeTour = () => {
+    finishTour();
   };
 
   /* Chat send */
@@ -253,7 +305,7 @@ export function DemoAssistant() {
       {mode === 'menu' && (
         <div className="fixed bottom-24 right-6 z-50 flex flex-col gap-2 animate-menu-in">
           <button
-            onClick={() => { setTourStep(0); setMode('tour'); goToStep(0); }}
+            onClick={() => { startPathRef.current = pathname; setTourStep(0); setMode('tour'); goToStep(0); }}
             className="flex items-center gap-3 rounded-full bg-white px-5 py-3 shadow-lg border border-gfm-border hover:border-gfm-green/40 hover:shadow-xl transition-all group"
           >
             <div className="w-8 h-8 rounded-full bg-gfm-green/10 flex items-center justify-center group-hover:bg-gfm-green/20 transition-colors">
@@ -309,10 +361,18 @@ export function DemoAssistant() {
               <h3 className="text-lg font-bold text-gfm-dark">{step.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-gfm-secondary">{step.description}</p>
               {step.highlight && (
-                <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200/50 px-3 py-2">
+                <button
+                  onClick={() => scrollToTarget(step.scrollTo)}
+                  className={`mt-3 w-full flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200/50 px-3 py-2 text-left transition-colors ${
+                    step.scrollTo ? 'hover:bg-amber-100 cursor-pointer' : 'cursor-default'
+                  }`}
+                >
                   <MapPin className="h-3.5 w-3.5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-xs text-amber-800">{step.highlight}</span>
-                </div>
+                  <span className="text-xs text-amber-800">
+                    {step.highlight}
+                    {step.scrollTo && <ArrowRight className="h-3 w-3 inline ml-1 text-amber-600" />}
+                  </span>
+                </button>
               )}
             </div>
 

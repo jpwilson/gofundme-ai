@@ -224,7 +224,7 @@ export default function SmartFundraiserPage() {
           )}
 
           {/* Campaign Story */}
-          <div className="rounded-xl border border-gfm-border p-6">
+          <div id="tour-story-coach" className="rounded-xl border border-gfm-border p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gfm-dark">Campaign Story</h2>
               <button

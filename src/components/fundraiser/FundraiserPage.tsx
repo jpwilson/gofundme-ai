@@ -96,6 +96,7 @@ export function FundraiserPage({
             Trust: {trustScore.score}/100
           </span>
         ) : null}
+        <span id="tour-trust-badge" />
       </div>
 
       {/* Two-column layout */}
@@ -107,6 +108,7 @@ export function FundraiserPage({
           <CampaignDescription fundraiser={fundraiser} />
 
           {/* AI Sentiment Summary */}
+          <div id="tour-sentiment" />
           {sentimentLoading ? (
             <div className="animate-pulse rounded-lg border border-gfm-border bg-gfm-bg/30 p-4">
               <div className="flex items-center gap-2 mb-3">
