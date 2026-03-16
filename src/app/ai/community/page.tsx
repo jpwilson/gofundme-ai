@@ -14,6 +14,7 @@ import {
   Heart, Users, TrendingUp, Clock, Filter, ChevronDown, Share2,
   ArrowUpRight, Target, RefreshCw, MapPin, Flame, Sparkles,
 } from 'lucide-react';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 const community = communities[0];
 const communityActivities = allActivities.filter((a) => a.communityId === community.id);
@@ -340,22 +341,7 @@ export default function SmartCommunityPage() {
                   </div>
                 )}
                 {!digest.loading && digest.data && (
-                  <div className="text-xs text-gfm-dark leading-relaxed whitespace-pre-line">
-                    {digest.data.split('\n').map((line, i) => {
-                      const trimmed = line.trim();
-                      if (!trimmed) return <br key={i} />;
-                      if (trimmed.startsWith('###')) return <p key={i} className="font-bold text-gfm-dark mt-2 mb-1 text-xs">{trimmed.replace(/^###\s*/, '')}</p>;
-                      if (trimmed.startsWith('##')) return <p key={i} className="font-bold text-gfm-dark mt-2 mb-1 text-sm">{trimmed.replace(/^##\s*/, '')}</p>;
-                      if (trimmed.startsWith('#')) return <p key={i} className="font-bold text-gfm-dark mt-2 mb-1 text-sm">{trimmed.replace(/^#\s*/, '')}</p>;
-                      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) return (
-                        <div key={i} className="flex gap-1.5 ml-1 my-0.5">
-                          <span className="text-gfm-green mt-px">&#8226;</span>
-                          <span>{trimmed.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '$1')}</span>
-                        </div>
-                      );
-                      return <p key={i} className="my-0.5">{trimmed.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
-                    })}
-                  </div>
+                  <MarkdownContent content={digest.data} className="text-xs" />
                 )}
                 {!digest.loading && digest.error && (
                   <>

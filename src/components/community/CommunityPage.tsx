@@ -35,10 +35,24 @@ export function CommunityPage({ slug }: CommunityPageProps) {
     fetch("/api/ai/community-digest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ community }),
+      body: JSON.stringify({
+        communityName: community.name,
+        activities: communityActivities.slice(0, 10),
+        stats: {
+          totalRaised: community.totalRaised,
+          totalDonations: community.totalDonations,
+          totalFundraisers: community.totalFundraisers,
+          followerCount: community.followerCount,
+        },
+      }),
     })
       .then((r) => r.json())
-      .then((data) => setDigest(data))
+      .then((json) => {
+        const content = json?.data?.content;
+        if (content) {
+          setDigest({ summary: content });
+        }
+      })
       .catch(() => {})
       .finally(() => setDigestLoading(false));
   }, [community]);

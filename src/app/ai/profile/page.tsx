@@ -6,6 +6,7 @@ import { users, getActivitiesByUserId, donations, fundraisers, causes } from '@/
 import { IMAGES } from '@/lib/data/images';
 import { formatCurrency, formatNumber } from '@/lib/utils/format';
 import { Heart, Share2, Users, MapPin, Calendar, ChevronRight, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 const user = users[0];
 const userActivities = getActivitiesByUserId(user.id);
@@ -194,11 +195,7 @@ export default function SmartProfilePage() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] font-medium text-gfm-green bg-gfm-light-green rounded-full px-2 py-0.5">AI-powered</span>
               </div>
-              <div className="text-sm text-gfm-secondary leading-relaxed prose prose-sm max-w-none">
-                {aiNarrative.data.split('\n').map((line, i) => (
-                  <p key={i} className={line.trim() === '' ? 'hidden' : 'mb-1'}>{line}</p>
-                ))}
-              </div>
+              <MarkdownContent content={aiNarrative.data} />
             </div>
           ) : (
             <p className="text-sm text-gfm-secondary italic">&ldquo;{aiPersonality.data?.description || givingPersonality.description}&rdquo;</p>

@@ -51,7 +51,23 @@ export function ProfilePage({ username }: ProfilePageProps) {
       }),
     })
       .then((r) => r.json())
-      .then((data) => setGivingPersonality(data))
+      .then((json) => {
+        const parsed = json?.data?.parsed;
+        const gp = parsed?.givingPersonality;
+        if (gp?.type) {
+          const colors: Record<string, string> = {
+            'Crisis Responder': '#ea580c',
+            'Champion Giver': '#2563eb',
+            'Steady Supporter': '#059669',
+            'Community Builder': '#7c3aed',
+          };
+          setGivingPersonality({
+            type: gp.type,
+            description: gp.description || '',
+            color: colors[gp.type] || '#059669',
+          });
+        }
+      })
       .catch(() => {})
       .finally(() => setPersonalityLoading(false));
   }, [user]);
