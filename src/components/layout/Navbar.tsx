@@ -98,20 +98,19 @@ export function Navbar() {
 
   const donateItems = [
     { label: "Donate to a fundraiser", href: "/search" },
-    { label: "Pricing", href: "/pricing" },
+    { label: "Pricing", href: "/create" },
   ];
 
   const fundraiseItems = [
     { label: "Start a GoFundMe", href: "/create" },
-    { label: "How it works", href: "/how-it-works" },
-    { label: "Fundraising tips", href: "/tips" },
+    { label: "How it works", href: "/docs" },
+    { label: "Fundraising tips", href: "/docs" },
   ];
 
   const aboutItems = [
-    { label: "About GoFundMe", href: "/about" },
-    { label: "Newsroom", href: "/newsroom" },
-    { label: "Careers", href: "/careers" },
-    { label: "Contact us", href: "/contact" },
+    { label: "About GoFundMe", href: "/docs" },
+    { label: "Documentation", href: "/docs" },
+    { label: "GitHub", href: "https://github.com/jpwilson/gofundme-ai" },
   ];
 
   const ai2IdeationItems = [
