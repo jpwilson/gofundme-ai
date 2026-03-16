@@ -80,12 +80,20 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Check if any item in a dropdown matches the current path
-  const isDropdownActive = (items: { href: string }[]) =>
-    items.some((item) => pathname === item.href || pathname.startsWith(item.href + '/'));
-
-  const isLinkActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + '/');
+  // Determine which SINGLE nav item should be active.
+  // Priority: direct links first, then dropdowns with unique routes.
+  // Dropdowns that share hrefs with direct links (About→/docs) don't count.
+  const getActiveNav = (): string | null => {
+    if (pathname === '/docs') return 'docs';
+    if (pathname === '/explore') return 'explore';
+    if (pathname.startsWith('/ai2/') || pathname.startsWith('/giving-agent')) return 'ai2';
+    if (pathname.startsWith('/ai/')) return 'ai';
+    if (pathname.startsWith('/f/') || pathname.startsWith('/communities/') || pathname.startsWith('/u/')) return 'core';
+    if (pathname === '/search') return 'donate';
+    if (pathname === '/create') return 'fundraise';
+    return null;
+  };
+  const activeNav = getActiveNav();
 
   // Close mobile menu on route change / resize
   useEffect(() => {
@@ -152,8 +160,8 @@ export function Navbar() {
             <Search className="h-5 w-5" />
           </Link>
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="Donate" items={donateItems} isActive={isDropdownActive(donateItems)} />
-            <NavDropdown label="Fundraise" items={fundraiseItems} isActive={isDropdownActive(fundraiseItems)} />
+            <NavDropdown label="Donate" items={donateItems} isActive={activeNav === 'donate'} />
+            <NavDropdown label="Fundraise" items={fundraiseItems} isActive={activeNav === 'fundraise'} />
           </div>
         </div>
 
@@ -175,11 +183,11 @@ export function Navbar() {
         {/* Right section */}
         <div className="flex items-center gap-1 lg:gap-2">
           <div className="hidden lg:flex lg:items-center lg:gap-0.5">
-            <NavDropdown label="About" items={aboutItems} isActive={isDropdownActive(aboutItems)} />
-            <Link href="/docs" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isLinkActive('/docs') ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Docs</Link>
-            <Link href="/explore" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${isLinkActive('/explore') ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Explore</Link>
-            <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} isActive={isDropdownActive(ai2IdeationItems)} />
-            <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} isActive={isDropdownActive(aiIdeationItems)} />
+            <NavDropdown label="About" items={aboutItems} />
+            <Link href="/docs" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${activeNav === 'docs' ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Docs</Link>
+            <Link href="/explore" className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${activeNav === 'explore' ? 'text-pink-600 bg-pink-50' : 'text-gfm-dark hover:text-gfm-green hover:bg-gfm-bg'}`}>Explore</Link>
+            <NavDropdown label="AI Ideation2" badge="JP" items={ai2IdeationItems} isActive={activeNav === 'ai2'} />
+            <NavDropdown label="AI Ideation" badge="JP" items={aiIdeationItems} isActive={activeNav === 'ai'} />
           </div>
           <button
             className="relative p-2 text-gfm-dark hover:text-gfm-green transition-colors rounded-lg hover:bg-gfm-bg"
