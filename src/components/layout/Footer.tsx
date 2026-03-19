@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronDown, Globe } from "lucide-react";
 
 const footerColumns = [
@@ -121,7 +122,11 @@ const legalLinks = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Hide consumer footer on Pro pages (Pro has its own footer)
+  if (pathname.startsWith('/pro')) return null;
 
   return (
     <footer className="bg-gfm-bg border-t border-gfm-border">

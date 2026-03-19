@@ -316,6 +316,136 @@ export default function DocsPage() {
 
         <Divider />
 
+        {/* ─── 4.5 Performance Optimizations ─── */}
+        <section>
+          <SectionHeading
+            tag="Performance"
+            title="Page Load Optimizations"
+            subtitle="Improving Core Web Vitals across every route."
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                icon: Gauge,
+                title: 'Server-Side Rendering',
+                desc: 'Converted homepage and layout to Server Components. Homepage is now statically prerendered — zero JavaScript shipped for initial render.',
+              },
+              {
+                icon: Cpu,
+                title: 'Lazy-Loaded AI Components',
+                desc: 'DemoAssistant (~500 lines) dynamically imported with ssr: false. Loads after page is interactive, not blocking critical path.',
+              },
+              {
+                icon: Box,
+                title: 'Next.js Image Optimization',
+                desc: 'Switched from <img> to Next.js <Image> with responsive sizes, automatic WebP/AVIF, lazy loading, and priority for above-fold images.',
+              },
+              {
+                icon: Activity,
+                title: 'Route-Level Loading Skeletons',
+                desc: 'Added loading.tsx skeletons for 8 route segments. Users see instant visual feedback during navigation instead of blank screens.',
+              },
+              {
+                icon: TrendingUp,
+                title: 'Static Prerendering',
+                desc: '12 routes now statically prerendered at build time (marked ○ in build output). Dynamic routes use ISR-ready patterns.',
+              },
+              {
+                icon: Layers,
+                title: 'Bundle Splitting',
+                desc: 'Three.js, charts, and heavy client components loaded via next/dynamic. Only the code needed for each page is shipped.',
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-gfm-border bg-white p-6 transition-all duration-200 hover:border-gfm-green/40 hover:shadow-lg hover:shadow-gfm-green/5"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="inline-flex rounded-xl bg-gfm-bg p-2.5 text-gfm-green">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gfm-dark">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gfm-secondary leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <Divider />
+
+        {/* ─── 4.75 Engineering Quality ─── */}
+        <section>
+          <SectionHeading
+            tag="Engineering"
+            title="Production Readiness"
+            subtitle="Built with the same engineering standards expected in production systems."
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                icon: Activity,
+                title: 'Observability',
+                desc: 'Every AI call traced via LangFuse — latency, token usage, cost, success rate. Real-time dashboard at /ai/analytics.',
+              },
+              {
+                icon: BadgeCheck,
+                title: 'Test Coverage',
+                desc: '205 tests across 13 test files: unit tests for components, format utilities, AI providers, cost calculations, guardrails, and observability.',
+              },
+              {
+                icon: Shield,
+                title: 'Error Handling',
+                desc: 'AI provider with automatic mock fallback. JSON parse recovery strips markdown fences. API routes return structured errors with appropriate status codes.',
+              },
+              {
+                icon: Box,
+                title: 'Statelessness',
+                desc: 'No server-side sessions or in-memory state. All data flows through API routes with request-scoped context. Ready for horizontal scaling.',
+              },
+              {
+                icon: Layers,
+                title: 'Horizontal Scalability',
+                desc: 'Stateless API routes deploy to Vercel Edge. AI calls are request-scoped with no shared state. LangFuse observability is cloud-hosted.',
+              },
+              {
+                icon: Sparkles,
+                title: 'Documentation',
+                desc: 'This page serves as the living documentation. Feature map, architecture, cost projections, and instrumentation — all in one place.',
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-gfm-border bg-white p-6 transition-all duration-200 hover:border-gfm-green/40 hover:shadow-lg hover:shadow-gfm-green/5"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="inline-flex rounded-xl bg-gfm-bg p-2.5 text-gfm-green">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gfm-dark">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gfm-secondary leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <Divider />
+
         {/* ─── 5. Metrics & Instrumentation ─── */}
         <section>
           <SectionHeading
@@ -408,6 +538,30 @@ export default function DocsPage() {
                 icon: Wallet,
                 title: 'Giving Agent',
                 desc: 'Automated monthly giving',
+              },
+              {
+                href: '/campaign-builder',
+                icon: Target,
+                title: 'AI Campaign Builder',
+                desc: 'Real-time scoring & niche benchmarks',
+              },
+              {
+                href: '/impact-feed',
+                icon: TrendingUp,
+                title: 'Impact Stories',
+                desc: 'Network effects & viral giving feed',
+              },
+              {
+                href: '/pro',
+                icon: DollarSign,
+                title: 'GoFundMe Pro',
+                desc: 'Enterprise nonprofit platform',
+              },
+              {
+                href: '/pro/onboard',
+                icon: Sparkles,
+                title: 'NPO Onboarding',
+                desc: '1-click nonprofit profile builder',
               },
             ].map((item) => {
               const Icon = item.icon;

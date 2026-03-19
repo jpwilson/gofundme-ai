@@ -8,13 +8,17 @@ import { Menu, X } from "lucide-react";
 const navLinks = [
   { label: "Fundraisers", href: "/f/la-wildfire-alerts-and-recovery", match: "/f/" },
   { label: "Communities", href: "/communities/watch-duty", match: "/communities/" },
-  { label: "Create", href: "/create", match: "/create" },
+  { label: "Campaign Builder", href: "/campaign-builder", match: "/campaign-builder" },
+  { label: "Impact", href: "/impact-feed", match: "/impact-feed" },
   { label: "Docs", href: "/docs", match: "/docs" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Hide consumer navbar on Pro pages (Pro has its own navbar)
+  if (pathname.startsWith('/pro')) return null;
 
   const getActiveNav = (): string | null => {
     for (const link of navLinks) {

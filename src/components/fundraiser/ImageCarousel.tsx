@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface ImageCarouselProps {
   images: string[];
@@ -21,10 +22,13 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
     <div className="relative w-full overflow-hidden rounded-card bg-gray-100">
       {/* Image */}
       <div className="relative aspect-[16/9] w-full">
-        <img
+        <Image
           src={images[current]}
           alt={`${alt} - image ${current + 1}`}
-          className="h-full w-full object-cover"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 66vw, 700px"
+          className="object-cover"
+          priority={current === 0}
         />
       </div>
 

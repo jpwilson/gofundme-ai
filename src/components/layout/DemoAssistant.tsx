@@ -272,14 +272,14 @@ export function DemoAssistant() {
       <button
         onClick={() => setMode(mode === 'closed' ? 'menu' : 'closed')}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gfm-green text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center justify-center ${
-          shouldPulse && mode === 'closed' ? 'animate-pulse-ring' : ''
+          shouldPulse && mode === 'closed' ? 'animate-pulse-ring animate-bounce-attention' : ''
         } ${mode !== 'closed' ? 'rotate-45' : ''}`}
         aria-label="Demo assistant"
       >
         {mode !== 'closed' ? (
           <X className="w-5 h-5 -rotate-45" />
         ) : (
-          <Sparkles className="w-5 h-5" />
+          <img src="/icon_robo.svg" alt="" className="w-8 h-8" />
         )}
       </button>
 
@@ -496,6 +496,16 @@ export function DemoAssistant() {
         @keyframes pulseRing {
           0%, 100% { box-shadow: 0 0 0 0 rgba(2, 169, 92, 0.4); }
           50% { box-shadow: 0 0 0 10px rgba(2, 169, 92, 0); }
+        }
+
+        .animate-bounce-attention {
+          animation: bounceAttention 1s ease-in-out 3, pulseRing 2.5s ease-in-out infinite;
+        }
+        @keyframes bounceAttention {
+          0%, 100% { transform: translateY(0); }
+          25% { transform: translateY(-12px) rotate(-5deg); }
+          50% { transform: translateY(0); }
+          75% { transform: translateY(-6px) rotate(3deg); }
         }
       `}</style>
     </>

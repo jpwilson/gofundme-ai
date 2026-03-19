@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { Search, DollarSign, Users, TrendingUp, ArrowRight, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';

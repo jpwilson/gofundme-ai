@@ -59,6 +59,21 @@ export const users: User[] = [
     inspiredCount: 21,
     createdAt: '2024-02-20T10:30:00Z',
   },
+  {
+    id: 'user-4',
+    email: 'jpwilson@example.com',
+    username: 'jpwilson',
+    displayName: 'Jean-Paul Wilson',
+    avatarUrl: IMAGES.avatars.jpwilson,
+    coverImageUrl: IMAGES.covers.jpwilson,
+    bio: 'Builder and technologist passionate about using AI to amplify generosity. Exploring how technology can make giving smarter and more impactful.',
+    location: 'San Francisco, CA',
+    followerCount: 92,
+    followingCount: 9,
+    inspiredCount: 21,
+    isOwnProfile: true,
+    createdAt: '2023-03-10T08:00:00Z',
+  },
 ];
 
 // ============================================================
@@ -318,6 +333,30 @@ export const donations: Donation[] = [
     message: 'Every bit helps. Stay safe everyone.',
     createdAt: '2025-02-15T12:30:00Z',
   },
+  {
+    id: 'don-13',
+    fundraiserId: 'fund-1',
+    donorId: 'user-4',
+    donor: { displayName: 'Jean-Paul Wilson', avatarUrl: IMAGES.avatars.jpwilson },
+    amount: 50000, // $500.00
+    tipAmount: 7500,
+    isAnonymous: false,
+    displayName: 'Jean-Paul Wilson',
+    message: 'Technology can help us respond faster. Keep building those alert systems!',
+    createdAt: '2025-02-18T11:00:00Z',
+  },
+  {
+    id: 'don-14',
+    fundraiserId: 'fund-2',
+    donorId: 'user-4',
+    donor: { displayName: 'Jean-Paul Wilson', avatarUrl: IMAGES.avatars.jpwilson },
+    amount: 25000, // $250.00
+    tipAmount: 3750,
+    isAnonymous: false,
+    displayName: 'Jean-Paul Wilson',
+    message: 'Wishing Sarah a speedy recovery. We are all rooting for you.',
+    createdAt: '2025-02-12T09:30:00Z',
+  },
 ];
 
 // ============================================================
@@ -497,6 +536,80 @@ export const activities: Activity[] = [
     commentCount: 5,
     createdAt: '2025-02-20T09:30:00Z',
   },
+  {
+    id: 'act-8',
+    userId: 'user-4',
+    user: users[3],
+    type: 'donation',
+    fundraiserId: 'fund-1',
+    fundraiser: {
+      title: 'LA Wildfire Alerts & Recovery Fund',
+      slug: 'la-wildfire-alerts-and-recovery',
+      coverImageUrl: IMAGES.wildfire.cover,
+      raisedAmount: 210200,
+      goalAmount: 300000,
+    },
+    communityId: 'community-1',
+    community: {
+      name: 'Watch Duty',
+      slug: 'watch-duty',
+      iconUrl: IMAGES.community.icon,
+    },
+    content: null,
+    imageUrl: null,
+    donationAmount: 50000,
+    likeCount: 18,
+    commentCount: 4,
+    createdAt: '2025-02-18T11:00:00Z',
+  },
+  {
+    id: 'act-9',
+    userId: 'user-4',
+    user: users[3],
+    type: 'donation',
+    fundraiserId: 'fund-2',
+    fundraiser: {
+      title: 'Help Sarah Fight Cancer',
+      slug: 'help-sarah-fight-cancer',
+      coverImageUrl: IMAGES.medical.cover,
+      raisedAmount: 3245000,
+      goalAmount: 5000000,
+    },
+    communityId: null,
+    community: null,
+    content: null,
+    imageUrl: null,
+    donationAmount: 25000,
+    likeCount: 12,
+    commentCount: 2,
+    createdAt: '2025-02-12T09:30:00Z',
+  },
+  {
+    id: 'act-10',
+    userId: 'user-4',
+    user: users[3],
+    type: 'comment',
+    fundraiserId: 'fund-1',
+    fundraiser: {
+      title: 'LA Wildfire Alerts & Recovery Fund',
+      slug: 'la-wildfire-alerts-and-recovery',
+      coverImageUrl: IMAGES.wildfire.cover,
+      raisedAmount: 210200,
+      goalAmount: 300000,
+    },
+    communityId: 'community-1',
+    community: {
+      name: 'Watch Duty',
+      slug: 'watch-duty',
+      iconUrl: IMAGES.community.icon,
+    },
+    content: 'The combination of real-time alerts and community fundraising is exactly what disaster response needs. Incredible work.',
+    imageUrl: null,
+    donationAmount: null,
+    likeCount: 22,
+    commentCount: 6,
+    createdAt: '2025-02-25T14:00:00Z',
+  },
 ];
 
 // ============================================================
@@ -570,37 +683,70 @@ export const causes: Cause[] = [
 ];
 
 // ============================================================
-// Highlights (Janahan's profile)
+// Highlights (per-user)
 // ============================================================
 
-export const highlights: Highlight[] = [
-  {
-    id: 'hl-1',
-    fundraiserId: 'fund-1',
-    fundraiser: {
-      title: 'LA Wildfire Alerts & Recovery Fund',
-      slug: 'la-wildfire-alerts-and-recovery',
-      coverImageUrl: IMAGES.wildfire.cover,
-      raisedAmount: 210200,
-      goalAmount: 300000,
-      donationCount: 14,
+const highlightsByUser: Record<string, Highlight[]> = {
+  'user-1': [
+    {
+      id: 'hl-1',
+      fundraiserId: 'fund-1',
+      fundraiser: {
+        title: 'LA Wildfire Alerts & Recovery Fund',
+        slug: 'la-wildfire-alerts-and-recovery',
+        coverImageUrl: IMAGES.wildfire.cover,
+        raisedAmount: 210200,
+        goalAmount: 300000,
+        donationCount: 14,
+      },
+      displayOrder: 1,
     },
-    displayOrder: 1,
-  },
-  {
-    id: 'hl-2',
-    fundraiserId: 'fund-3',
-    fundraiser: {
-      title: 'LA Animal Rescue Fund',
-      slug: 'la-animal-rescue-fund',
-      coverImageUrl: IMAGES.animals.cover,
-      raisedAmount: 785000,
-      goalAmount: 1000000,
-      donationCount: 62,
+    {
+      id: 'hl-2',
+      fundraiserId: 'fund-3',
+      fundraiser: {
+        title: 'LA Animal Rescue Fund',
+        slug: 'la-animal-rescue-fund',
+        coverImageUrl: IMAGES.animals.cover,
+        raisedAmount: 785000,
+        goalAmount: 1000000,
+        donationCount: 62,
+      },
+      displayOrder: 2,
     },
-    displayOrder: 2,
-  },
-];
+  ],
+  'user-4': [
+    {
+      id: 'hl-3',
+      fundraiserId: 'fund-1',
+      fundraiser: {
+        title: 'LA Wildfire Alerts & Recovery Fund',
+        slug: 'la-wildfire-alerts-and-recovery',
+        coverImageUrl: IMAGES.wildfire.cover,
+        raisedAmount: 210200,
+        goalAmount: 300000,
+        donationCount: 14,
+      },
+      displayOrder: 1,
+    },
+    {
+      id: 'hl-4',
+      fundraiserId: 'fund-2',
+      fundraiser: {
+        title: 'Help Sarah Fight Cancer',
+        slug: 'help-sarah-fight-cancer',
+        coverImageUrl: IMAGES.medical.cover,
+        raisedAmount: 3245000,
+        goalAmount: 5000000,
+        donationCount: 187,
+      },
+      displayOrder: 2,
+    },
+  ],
+};
+
+// Backward-compatible export
+export const highlights: Highlight[] = highlightsByUser['user-1'];
 
 // ============================================================
 // Giving Pledges (AI Giving Agent)
@@ -654,7 +800,6 @@ export function getLeaderboardByCommunitySlug(
   return leaderboardEntries;
 }
 
-export function getHighlightsByUserId(_userId: string): Highlight[] {
-  // In a real app this would filter; returning all highlights for now
-  return highlights;
+export function getHighlightsByUserId(userId: string): Highlight[] {
+  return highlightsByUser[userId] ?? highlights;
 }

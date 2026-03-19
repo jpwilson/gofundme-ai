@@ -44,12 +44,14 @@ export const IMAGES = {
     rachel: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
     lisa: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80',
     kevin: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&q=80',
+    jpwilson: '/jp.png',
   },
 
   // Profile covers
   covers: {
     janahan: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80',
     tim: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=1200&q=80',
+    jpwilson: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
   },
 
   // Generic placeholder images for thumbnails

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { Activity } from "@/lib/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { ProgressCircle } from "@/components/ui/ProgressCircle";
@@ -134,7 +135,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
             className="inline-flex items-center gap-1.5 text-xs font-medium text-gfm-secondary hover:underline"
           >
             {activity.community.iconUrl && (
-              <img src={activity.community.iconUrl} alt="" className="h-4 w-4 rounded-full" />
+              <Image src={activity.community.iconUrl} alt="" width={16} height={16} className="h-4 w-4 rounded-full" />
             )}
             Benefiting {activity.community.name}
           </a>

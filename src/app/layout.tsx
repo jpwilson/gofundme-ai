@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { DemoAssistant } from "@/components/layout/DemoAssistant";
+import { DemoAssistantLoader } from "@/components/layout/DemoAssistantLoader";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,7 +29,7 @@ export default function RootLayout({
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
-        <DemoAssistant />
+        <DemoAssistantLoader />
       </body>
     </html>
   );
