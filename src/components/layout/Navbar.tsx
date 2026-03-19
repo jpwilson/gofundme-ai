@@ -93,10 +93,13 @@ export function Navbar() {
           </Link>
           <Link
             href="/u/jpwilson"
-            className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-gfm-green text-sm font-bold text-white hover:bg-gfm-dark-green transition-colors"
+            className="ml-2 flex items-center gap-2 rounded-full hover:bg-gfm-bg px-2 py-1.5 transition-colors"
             title="Jean-Paul Wilson"
           >
-            J
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gfm-green text-sm font-bold text-white">
+              J
+            </span>
+            <span className="hidden text-sm font-medium text-gfm-dark lg:block">Jean-Paul</span>
           </Link>
         </div>
       </nav>

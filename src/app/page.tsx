@@ -120,22 +120,27 @@ export default function HomePage() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {mockFundraisers.map((fundraiser) => (
-              <Link
+              <div
                 key={fundraiser.id}
-                href={`/f/${fundraiser.slug}`}
                 className="group overflow-hidden rounded-xl border border-[var(--gfm-border)] bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
               >
-                <div className="aspect-video overflow-hidden bg-gray-100">
-                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 p-4 text-center text-sm font-medium text-white transition-transform duration-300 group-hover:scale-105">
-                    {fundraiser.title}
+                <Link href={`/f/${fundraiser.slug}`}>
+                  <div className="aspect-video overflow-hidden bg-gray-100">
+                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 p-4 text-center text-sm font-medium text-white transition-transform duration-300 group-hover:scale-105">
+                      {fundraiser.title}
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-[var(--gfm-dark)] group-hover:text-[var(--gfm-green)] transition-colors line-clamp-2">
-                    {fundraiser.title}
-                  </h3>
+                  <div className="p-4 pb-0">
+                    <h3 className="font-semibold text-[var(--gfm-dark)] group-hover:text-[var(--gfm-green)] transition-colors line-clamp-2">
+                      {fundraiser.title}
+                    </h3>
+                  </div>
+                </Link>
+                <div className="px-4 pb-4">
                   <div className="mt-2 flex items-center gap-2">
-                    <Avatar name={fundraiser.organizer.displayName} size="xs" />
+                    <Link href={`/u/${fundraiser.organizer.username}`}>
+                      <Avatar name={fundraiser.organizer.displayName} size="xs" />
+                    </Link>
                     <span className="text-sm text-[var(--gfm-secondary)]">
                       by{' '}
                       <Link
@@ -161,7 +166,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
