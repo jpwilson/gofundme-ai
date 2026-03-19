@@ -137,7 +137,13 @@ export default function HomePage() {
                   <div className="mt-2 flex items-center gap-2">
                     <Avatar name={fundraiser.organizer.displayName} size="xs" />
                     <span className="text-sm text-[var(--gfm-secondary)]">
-                      by {fundraiser.organizer.displayName}
+                      by{' '}
+                      <Link
+                        href={`/u/${fundraiser.organizer.username}`}
+                        className="hover:text-[var(--gfm-green)] hover:underline"
+                      >
+                        {fundraiser.organizer.displayName}
+                      </Link>
                     </span>
                   </div>
                   <div className="mt-3">

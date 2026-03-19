@@ -86,16 +86,17 @@ export function Navbar() {
             ))}
           </div>
           <Link
-            href="/sign-in"
-            className="hidden text-sm font-medium text-gfm-dark hover:text-gfm-green transition-colors lg:block px-3 py-2 rounded-lg hover:bg-gfm-bg"
-          >
-            Sign in
-          </Link>
-          <Link
             href="/create"
             className="hidden rounded-full border-2 border-gfm-green px-5 py-2 text-sm font-semibold text-gfm-green hover:bg-gfm-green hover:text-white transition-all duration-200 lg:block"
           >
             Start a GoFundMe
+          </Link>
+          <Link
+            href="/u/jpwilson"
+            className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-gfm-green text-sm font-bold text-white hover:bg-gfm-dark-green transition-colors"
+            title="Jean-Paul Wilson"
+          >
+            J
           </Link>
         </div>
       </nav>
@@ -119,10 +120,18 @@ export function Navbar() {
             ))}
             <div className="border-t border-gfm-border pt-4 mt-4 space-y-3">
               <Link
-                href="/sign-in"
-                className="block text-sm font-medium text-gfm-dark hover:text-gfm-green"
+                href="/u/jpwilson"
+                className="flex items-center gap-2 text-sm font-medium text-gfm-dark hover:text-gfm-green"
               >
-                Sign in
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gfm-green text-xs font-bold text-white">J</span>
+                Jean-Paul Wilson
+              </Link>
+              <Link
+                href="/u/janahan"
+                className="flex items-center gap-2 text-sm font-medium text-gfm-dark hover:text-gfm-green"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-400 text-xs font-bold text-white">J</span>
+                Janahan Sivaraman
               </Link>
               <Link
                 href="/create"
