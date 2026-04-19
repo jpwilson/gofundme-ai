@@ -2,7 +2,9 @@
 
 A deep product exploration that reimagines GoFundMe's three core pages with AI — built the same week GoFundMe launched their Smart Fundraising Coach (March 12, 2026).
 
-**Live demo:** [gfmv1.vercel.app](https://gfmv1.vercel.app)
+**Live demo:** [gfm.46-225-235-124.sslip.io](https://gfm.46-225-235-124.sslip.io)
+
+> _Hosted on [Hetzner Cloud](https://www.hetzner.com/cloud) (ARM CAX21, Nuremberg) via [Coolify](https://coolify.io) — migrated off Vercel to cut demo hosting costs. Prior URL: `gfmv1.vercel.app`._
 
 ## What's Here
 
